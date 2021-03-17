@@ -1,0 +1,7 @@
+TIME_BETWEEN_CHECK = 10
+TIME_BETWEEN_CLEAR = 3600 # An hour
+EXPIRY_TIME = 3600 * 6
+HTTP_RETRY = 3
+BASE_JSON_DIR = "jsons"
+CHANNELS_JSON = "channels.json"
+FETCHED_JSON = "fetched.json"
