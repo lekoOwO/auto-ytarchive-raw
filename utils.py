@@ -40,11 +40,21 @@ def is_live(channel_id):
             og_url = re.search(r'<link rel="canonical" href="(.+?)">', html).group(1)
 
         if "watch?v=" in og_url:
+            if "LIVE_STREAM_OFFLINE" in html:
+                return False # Scheduled
             return og_url
         elif "/channel/" in og_url or "/user/" in og_url:
             return False
         else:
             raise RuntimeError(f"Something weird happened on checking Live for {channel_id}...")
+
+def is_privated(video_id):
+    url = f"https://www.youtube.com/watch?v={video_id}"
+
+    with urllib.request.urlopen(url) as response:
+        html = response.read().decode()
+
+        return "Q0FBU0FnZ0E=" in html
 
 def log(msg):
     print(f"[INFO]{msg}")
