@@ -30,7 +30,7 @@ def get_youtube_id(url):
     try:
         return re.search(r'^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*', url).group(1)
     except:
-        with urllib.request.urlopen(url) as response:
+        with utils.urlopen(url) as response:
             html = response.read().decode()
             regex = r'<meta itemprop="videoId" content="(.+?)">'
             result = re.search(regex, html).group(1)
@@ -48,7 +48,7 @@ def get_youtube_video_info(video_id, html):
     }
 
 def get_image(url):
-    with urllib.request.urlopen(url) as response:
+    with utils.urlopen(url) as response:
         data = response.read()
         b64 = base64.b64encode(data).decode()
 
@@ -63,7 +63,7 @@ def get_json(video_url, file=None):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
         }
     )
-    with urllib.request.urlopen(info_req) as response:
+    with utils.urlopen(info_req) as response:
         data = response.read().decode()
 
         match = re.findall(r'"itag":(\d+),"url":"([^"]+)"', data)

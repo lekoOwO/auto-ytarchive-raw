@@ -32,40 +32,44 @@ class RepeatedTimer(object):
         self._timer.cancel()
         self.is_running = False
 
-def is_live(channel_id, retry = 0):
-    url = f"https://www.youtube.com/channel/{channel_id}/live"
+def urlopen(url, retry = 0):
     try:
-        with urllib.request.urlopen(url) as response:
-            html = response.read().decode()
-
-            try:
-                og_url = re.search(r'<meta property="og:url" content="(.+?)">', html).group(1)
-            except AttributeError:
-                og_url = re.search(r'<link rel="canonical" href="(.+?)">', html).group(1)
-
-            if "watch?v=" in og_url:
-                if "LIVE_STREAM_OFFLINE" in html:
-                    return False # Scheduled
-                return og_url
-            elif "/channel/" in og_url or "/user/" in og_url:
-                return False
-            else:
-                raise RuntimeError(f"Something weird happened on checking Live for {channel_id}...")
+        return urllib.request.urlopen(url)
     except urllib.error.HTTPError as e:
         if e.code == 503:
             if retry < const.HTTP_RETRY:
                 utils.warn(f" Get {e.code} Error. Trying {retry}/{const.HTTP_RETRY}...")
                 time.sleep(1)
-                return is_live(channel_id, retry+1)
+                return urlopen(url, retry+1)
             else:
                 raise e
         else:
             raise e
 
+
+def is_live(channel_id):
+    url = f"https://www.youtube.com/channel/{channel_id}/live"
+    with urlopen(url) as response:
+        html = response.read().decode()
+
+        try:
+            og_url = re.search(r'<meta property="og:url" content="(.+?)">', html).group(1)
+        except AttributeError:
+            og_url = re.search(r'<link rel="canonical" href="(.+?)">', html).group(1)
+
+        if "watch?v=" in og_url:
+            if "LIVE_STREAM_OFFLINE" in html:
+                return False # Scheduled
+            return og_url
+        elif "/channel/" in og_url or "/user/" in og_url:
+            return False
+        else:
+            raise RuntimeError(f"Something weird happened on checking Live for {channel_id}...")
+
 def is_privated(video_id):
     url = f"https://www.youtube.com/watch?v={video_id}"
 
-    with urllib.request.urlopen(url) as response:
+    with urlopen(url) as response:
         html = response.read().decode()
 
         return "Q0FBU0FnZ0E=" in html

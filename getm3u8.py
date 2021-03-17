@@ -1,8 +1,9 @@
 import urllib.request
 import re
+import utils
 
 def get_m3u8(url):
-    with urllib.request.urlopen(url) as response:
+    with utils.urlopen(url) as response:
         html = response.read().decode()
         regex = r"hlsManifestUrl\":\"([^\"]+)"
         result = re.search(regex, html).group(1)
