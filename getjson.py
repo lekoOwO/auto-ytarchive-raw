@@ -6,7 +6,9 @@ import base64
 import datetime
 import json
 
-VERSION = "1.1"
+import utils
+
+VERSION = "1.2"
 
 PRIORITY = {
     "VIDEO": [
@@ -35,19 +37,15 @@ def get_youtube_id(url):
 
             return result
 
-def get_youtube_video_info(video_id):
-    url = f"https://www.youtube.com/watch?v={video_id}"
-    with urllib.request.urlopen(url) as response:
-        html = response.read().decode()
-
-        return {
-            "title": re.search(r'<meta name="title" content="(.+?)">', html).group(1),
-            "id": video_id,
-            "channelName": re.search(r'<link itemprop="name" content="(.+?)">', html).group(1),
-            "channelURL": re.search(r'<link itemprop="url" href="(.+?)">', html).group(1),
-            "description": re.search(r'"description":{"simpleText":"(.+?)"},', html).group(1).replace("\\n", "\n"),
-            "thumbnail": get_image(f"https://i3.ytimg.com/vi/{video_id}/maxresdefault.jpg")
-        }
+def get_youtube_video_info(video_id, html):
+    return {
+        "title": re.search(r'<meta name="title" content="(.+?)">', html).group(1),
+        "id": video_id,
+        "channelName": re.search(r'<link itemprop="name" content="(.+?)">', html).group(1),
+        "channelURL": "https://www.youtube.com/channel/" + re.search(r'<meta itemprop="channelId" content="(.+?)">', html).group(1),
+        "description": re.search(r'"description":{"simpleText":"(.+?)"},', html).group(1).replace("\\n", "\n"),
+        "thumbnail": get_image(f"https://i3.ytimg.com/vi/{video_id}/maxresdefault.jpg")
+    }
 
 def get_image(url):
     with urllib.request.urlopen(url) as response:
@@ -59,16 +57,14 @@ def get_image(url):
 def get_json(video_url, file=None):
     video_id = get_youtube_id(video_url)
 
-    info_url = f"https://www.youtube.com/get_video_info?video_id={video_id}"
     info_req = urllib.request.Request(
-        info_url, 
+        video_url, 
         headers={
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
         }
     )
     with urllib.request.urlopen(info_req) as response:
         data = response.read().decode()
-        data = urllib.parse.unquote(data)
 
         match = re.findall(r'"itag":(\d+),"url":"([^"]+)"', data)
         match = dict(x for x in match)
@@ -76,7 +72,7 @@ def get_json(video_url, file=None):
         best = {
             "video": None,
             "audio": None,
-            "metadata": get_youtube_video_info(video_id),
+            "metadata": get_youtube_video_info(video_id, data),
             "version": VERSION,
             "createTime": datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
         }
@@ -95,6 +91,16 @@ def get_json(video_url, file=None):
                     itag: match[itag].replace("\\u0026", "\u0026")
                 }
                 break
+
+        if best["video"] is None or best["audio"] is None:
+            if best["video"] is None:
+                utils.warn(f" {video_id} got empty video sources.")
+            if best["audio"] is None:
+                utils.warn(f" {video_id} got empty audio sources.")
+            
+            utils.warn(" Printng match...")
+            print(match)
+            
         if file is not None:
             with open(file, "w", encoding="utf8") as f:
                 json.dump(best, f, indent=4, ensure_ascii=False)
