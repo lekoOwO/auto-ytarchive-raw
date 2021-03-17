@@ -38,14 +38,13 @@ def urlopen(url, retry = 0):
     except urllib.error.HTTPError as e:
         if e.code == 503:
             if retry < const.HTTP_RETRY:
-                utils.warn(f" Get {e.code} Error. Trying {retry}/{const.HTTP_RETRY}...")
+                utils.warn(f" Get {e.code} Error. Trying {retry+1}/{const.HTTP_RETRY}...")
                 time.sleep(1)
                 return urlopen(url, retry+1)
             else:
                 raise e
         else:
             raise e
-
 
 def is_live(channel_id):
     url = f"https://www.youtube.com/channel/{channel_id}/live"
