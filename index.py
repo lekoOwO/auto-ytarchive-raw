@@ -113,7 +113,7 @@ try:
                             message = f"[{video_id}](https://youtu.be/{video_id}) occurred sth weird on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
                             
                         if const.ENABLED_MODULES["discord"]:
-                            discord.send(const.DISCORD_WEBHOOK_URL, message)
+                            discord.send(const.DISCORD_WEBHOOK_URL, message, const.VERSION)
                         if const.ENABLED_MODULES["telegram"]:
                             telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
                             

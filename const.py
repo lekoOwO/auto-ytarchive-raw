@@ -1,3 +1,7 @@
+# Used for identify features etc., DO NOT MODIFY
+VERSION = "0.1b"
+# DO NOT MODIFY END
+
 TIME_BETWEEN_CHECK = 10
 TIME_BETWEEN_CLEAR = 3600 # An hour
 EXPIRY_TIME = 3600 * 6
