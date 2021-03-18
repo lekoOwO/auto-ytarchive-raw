@@ -71,7 +71,8 @@ def is_live(channel_id):
         elif "/channel/" in og_url or "/user/" in og_url:
             return False
         else:
-            raise RuntimeError(f"Something weird happened on checking Live for {channel_id}...")
+            utils.warn(f" Something weird happened on checking Live for {channel_id}...")
+            return False
 
 def get_video_status(video_id):
     url = f"https://www.youtube.com/watch?v={video_id}"
