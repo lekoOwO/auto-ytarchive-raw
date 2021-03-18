@@ -98,15 +98,26 @@ try:
             if const.ENABLE_PRIVATE_CHECK:
                 if channel_name in fetched:
                     for video_id in fetched[channel_name]:
-                        if utils.is_privated(video_id):
-                            message = f"[{video_id}](https://youtu.be/{video_id}) has been privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
+                        status = utils.get_video_status(video_id)
+
+                        if status is utils.PlayabilityStatus.OK:
+                            continue
+
+                        if status is utils.PlayabilityStatus.PRIVATED:
+                            message = f"[{video_id}](https://youtu.be/{video_id}) is privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
+                        elif status is utils.PlayabilityStatus.REMOVED:
+                            message = f"[{video_id}](https://youtu.be/{video_id}) is removed on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
+                        elif status is utils.PlayabilityStatus.COPYRIGHTED:
+                            message = f"[{video_id}](https://youtu.be/{video_id}) is copyrighted on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
+                        elif status is utils.PlayabilityStatus.UNKNOWN:
+                            message = f"[{video_id}](https://youtu.be/{video_id}) occurred sth weird on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
                             
-                            if const.ENABLED_MODULES["discord"]:
-                                discord.send(const.DISCORD_WEBHOOK_URL, message)
-                            if const.ENABLED_MODULES["telegram"]:
-                                telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
+                        if const.ENABLED_MODULES["discord"]:
+                            discord.send(const.DISCORD_WEBHOOK_URL, message)
+                        if const.ENABLED_MODULES["telegram"]:
+                            telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
                             
-                            utils.log(f"[INFO] {video_id} has been privated on [{channel_name}]")
+                        utils.log(f"[INFO] {message}")
 
             is_live = utils.is_live(channel_id)
             if is_live:
