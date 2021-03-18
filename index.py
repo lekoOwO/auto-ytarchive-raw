@@ -51,21 +51,38 @@ else:
 
 def clear_expiry():
     utils.log(f" Running clear task.")
+
+    clear_queue = []
     for channel_name in fetched:
         for video_id in fetched[channel_name]:
             for m3u8_id in fetched[channel_name][video_id]:
                 if time.time() - fetched[channel_name][video_id][m3u8_id]["create_time"] > const.EXPIRY_TIME:
                     utils.log(f"[{channel_name}] {m3u8_id} has expired. Clearing...")
 
-                    try:
-                        os.remove(fetched[channel_name][video_id][m3u8_id]["file"])
-                    except:
-                        utils.warn(f"[{channel_name}] Error occurs when deleting {m3u8_id}. Ignoring...")
+                    clear_queue.append({
+                        "channel_name": channel_name,
+                        "video_id": video_id,
+                        "m3u8_id": m3u8_id
+                    })
+    for x in clear_queue:
+        try:
+            os.remove(fetched[x["channel_name"]][x["video_id"]][x["m3u8_id"]]["file"])
+        except:
+            utils.warn(f"[{x['channel_name']}] Error occurs when deleting {x['m3u8_id']}. Ignoring...")
+        fetched[x["channel_name"]][x["video_id"]].pop(x["m3u8_id"])
 
-                    fetched[channel_name][video_id].pop(m3u8_id)
-            if not fetched[channel_name][video_id]:
-                utils.log(f"[{channel_name}] {video_id} has all gone. Clearing...")
-                fetched[channel_name].pop(video_id)
+    clear_queue = []
+    for channel_name in fetched:
+        for video_id in fetched[channel_name]:
+             if not fetched[channel_name][video_id]:
+                 clear_queue.append({
+                     "channel_name": channel_name,
+                     "video_id": video_id
+                 })
+    for x in clear_queue:
+        utils.log(f"[{x['channel_name']}] {x['video_id']} has all gone. Clearing...")
+        fetched[x['channel_name']].pop(x['video_id'])
+
     save()
 try:
     expiry_task = utils.RepeatedTimer(const.TIME_BETWEEN_CLEAR, clear_expiry)
