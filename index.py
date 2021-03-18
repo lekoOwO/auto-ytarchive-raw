@@ -8,6 +8,9 @@ import getjson
 
 import const
 
+from addons import discord
+from addons import telegram
+
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 if not os.path.exists(const.BASE_JSON_DIR):
@@ -84,11 +87,24 @@ def clear_expiry():
         fetched[x['channel_name']].pop(x['video_id'])
 
     save()
+
 try:
     expiry_task = utils.RepeatedTimer(const.TIME_BETWEEN_CLEAR, clear_expiry)
 
     while True:
         for channel_name, channel_id in CHANNELS.items():
+
+            # Check for privated videos
+            if channel_name in fetched:
+                for video_id in fetched[channel_name]:
+                    if utils.is_privated(video_id):
+                        message = f"[{video_id}](https://youtu.be/{video_id}) has been privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
+                        
+                        if const.ENABLED_MODULES["discord"]:
+                            discord.send(const.DISCORD_WEBHOOK_URL, message)
+                        if const.ENABLED_MODULES["telegram"]:
+                            telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
+
             is_live = utils.is_live(channel_id)
             if is_live:
                 utils.log(f"[{channel_name}] On live!")
