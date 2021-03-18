@@ -95,15 +95,18 @@ try:
         for channel_name, channel_id in CHANNELS.items():
 
             # Check for privated videos
-            if channel_name in fetched:
-                for video_id in fetched[channel_name]:
-                    if utils.is_privated(video_id):
-                        message = f"[{video_id}](https://youtu.be/{video_id}) has been privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
-                        
-                        if const.ENABLED_MODULES["discord"]:
-                            discord.send(const.DISCORD_WEBHOOK_URL, message)
-                        if const.ENABLED_MODULES["telegram"]:
-                            telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
+            if const.ENABLE_PRIVATE_CHECK:
+                if channel_name in fetched:
+                    for video_id in fetched[channel_name]:
+                        if utils.is_privated(video_id):
+                            message = f"[{video_id}](https://youtu.be/{video_id}) has been privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
+                            
+                            if const.ENABLED_MODULES["discord"]:
+                                discord.send(const.DISCORD_WEBHOOK_URL, message)
+                            if const.ENABLED_MODULES["telegram"]:
+                                telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
+                            
+                            utils.log(f"[INFO] {video_id} has been privated on [{channel_name}]")
 
             is_live = utils.is_live(channel_id)
             if is_live:

@@ -7,6 +7,8 @@ CHANNELS_JSON = "channels.json"
 FETCHED_JSON = "fetched.json"
 
 # Send to discord on video privated
+ENABLE_PRIVATE_CHECK = False
+
 ENABLED_MODULES = {
     "discord": False,
     "telegram": False
