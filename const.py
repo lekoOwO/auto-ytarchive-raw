@@ -1,5 +1,5 @@
 # Used for identify features etc., DO NOT MODIFY
-VERSION = "0.1b"
+VERSION = "0.2b"
 # DO NOT MODIFY END
 
 TIME_BETWEEN_CHECK = 10

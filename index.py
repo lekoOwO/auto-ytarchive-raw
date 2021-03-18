@@ -58,8 +58,8 @@ def clear_expiry():
     clear_queue = []
     for channel_name in fetched:
         for video_id in fetched[channel_name]:
-            for m3u8_id in fetched[channel_name][video_id]:
-                if time.time() - fetched[channel_name][video_id][m3u8_id]["create_time"] > const.EXPIRY_TIME:
+            for m3u8_id in fetched[channel_name][video_id]["fregments"]:
+                if time.time() - fetched[channel_name][video_id]["fregments"][m3u8_id]["create_time"] > const.EXPIRY_TIME:
                     utils.log(f"[{channel_name}] {m3u8_id} has expired. Clearing...")
 
                     clear_queue.append({
@@ -69,15 +69,15 @@ def clear_expiry():
                     })
     for x in clear_queue:
         try:
-            os.remove(fetched[x["channel_name"]][x["video_id"]][x["m3u8_id"]]["file"])
+            os.remove(fetched[x["channel_name"]][x["video_id"]]["fregments"][x["m3u8_id"]]["file"])
         except:
             utils.warn(f"[{x['channel_name']}] Error occurs when deleting {x['m3u8_id']}. Ignoring...")
-        fetched[x["channel_name"]][x["video_id"]].pop(x["m3u8_id"])
+        fetched[x["channel_name"]][x["video_id"]]["fregments"].pop(x["m3u8_id"])
 
     clear_queue = []
     for channel_name in fetched:
         for video_id in fetched[channel_name]:
-             if not fetched[channel_name][video_id]:
+             if not fetched[channel_name][video_id]["fregments"]:
                  clear_queue.append({
                      "channel_name": channel_name,
                      "video_id": video_id
@@ -98,6 +98,9 @@ try:
             if const.ENABLE_PRIVATE_CHECK:
                 if channel_name in fetched:
                     for video_id in fetched[channel_name]:
+                        if "skipPrivateCheck" in fetched[channel_name][video_id] and fetched[channel_name][video_id]["skipPrivateCheck"]:
+                            continue
+
                         status = utils.get_video_status(video_id)
 
                         if status is utils.PlayabilityStatus.OK:
@@ -116,6 +119,8 @@ try:
                             discord.send(const.DISCORD_WEBHOOK_URL, message, const.VERSION)
                         if const.ENABLED_MODULES["telegram"]:
                             telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
+
+                        fetched[channel_name][video_id]["skipPrivateCheck"] = True
                             
                         utils.log(f"[INFO] {message}")
 
@@ -131,18 +136,20 @@ try:
 
                 if channel_name not in fetched:
                     fetched[channel_name] = {
-                        video_id: {}
+                        video_id: {
+                            "fregments": {}
+                        }
                     }
                 
                 if video_id not in fetched[channel_name]:
-                    fetched[channel_name][video_id] = {}
+                    fetched[channel_name][video_id] = {"fregments": {}}
 
                 filepath = os.path.join(const.BASE_JSON_DIR, f"{m3u8_id}.json")
                 getjson.get_json(video_url, filepath)
 
                 utils.log(f"[{channel_name}] Saving {m3u8_id}...")
 
-                fetched[channel_name][video_id][m3u8_id] = {
+                fetched[channel_name][video_id]["fregments"][m3u8_id] = {
                     "file": filepath,
                     "create_time": time.time()
                 }
