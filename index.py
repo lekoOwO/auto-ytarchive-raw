@@ -118,6 +118,8 @@ try:
                             message = f"[{video_id}](https://youtu.be/{video_id}) is copyrighted on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
                         elif status is utils.PlayabilityStatus.UNKNOWN:
                             message = f"[{video_id}](https://youtu.be/{video_id}) occurred sth weird on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
+                        elif status is utils.PlayabilityStatus.MEMBERS_ONLY:
+                            message = f"[{video_id}](https://youtu.be/{video_id}) is member-only on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
                             
                         if const.ENABLED_MODULES["discord"]:
                             discord.send(const.DISCORD_WEBHOOK_URL, message, const.VERSION)

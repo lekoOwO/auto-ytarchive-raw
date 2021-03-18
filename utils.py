@@ -12,6 +12,7 @@ class PlayabilityStatus(Enum):
     PRIVATED = auto()
     COPYRIGHTED = auto()
     REMOVED = auto()
+    MEMBERS_ONLY = auto()
     OK = auto()
     UNKNOWN = auto()
 
@@ -82,7 +83,9 @@ def get_video_status(video_id):
     with urlopen(req) as response:
         html = response.read().decode() 
 
-        if '"status":"UNPLAYABLE"' in html:
+        if '"offerId":"sponsors_only_video"' in html:
+            return PlayabilityStatus.MEMBERS_ONLY
+        elif '"status":"UNPLAYABLE"' in html:
             return PlayabilityStatus.COPYRIGHTED
         elif '"status":"LOGIN_REQUIRED"' in html:
             return PlayabilityStatus.PRIVATED
