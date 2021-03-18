@@ -98,7 +98,11 @@ try:
             if const.ENABLE_PRIVATE_CHECK:
                 if channel_name in fetched:
                     for video_id in fetched[channel_name]:
-                        if "skipPrivateCheck" in fetched[channel_name][video_id] and fetched[channel_name][video_id]["skipPrivateCheck"]:
+                        # Might not needed, but I do dumb things.
+                        if "skipPrivateCheck" not in fetched[channel_name][video_id]:
+                            fetched[channel_name][video_id]["skipPrivateCheck"] = False
+                            save()
+                        elif fetched[channel_name][video_id]["skipPrivateCheck"]:
                             continue
 
                         status = utils.get_video_status(video_id)
@@ -121,6 +125,7 @@ try:
                             telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
 
                         fetched[channel_name][video_id]["skipPrivateCheck"] = True
+                        save()
                             
                         utils.log(f"[INFO] {message}")
 
@@ -137,12 +142,16 @@ try:
                 if channel_name not in fetched:
                     fetched[channel_name] = {
                         video_id: {
-                            "fregments": {}
+                            "fregments": {},
+                            "skipPrivateCheck": False
                         }
                     }
                 
                 if video_id not in fetched[channel_name]:
-                    fetched[channel_name][video_id] = {"fregments": {}}
+                    fetched[channel_name][video_id] = {
+                        "fregments": {},
+                        "skipPrivateCheck": False
+                    }
 
                 filepath = os.path.join(const.BASE_JSON_DIR, f"{m3u8_id}.json")
                 getjson.get_json(video_url, filepath)
