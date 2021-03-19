@@ -44,6 +44,11 @@ class RepeatedTimer(object):
 def urlopen(url, retry = 0):
     try:
         return urllib.request.urlopen(url)
+    except urllib.error.URLError as e:
+        if retry < const.HTTP_RETRY:
+            return urlopen(url, retry + 1)
+        else:
+            raise e
     except urllib.error.HTTPError as e:
         if e.code == 503:
             if retry < const.HTTP_RETRY:
