@@ -23,10 +23,13 @@ with open(const.CHANNELS_JSON, encoding="utf8") as f:
 # {
 #   channel_name: {
 #       video_id: {
-#           m3u8_id: {
-#               file,
-#               create_time
-#           }
+#           "fregments": {
+#                m3u8_id: {
+#                   file,
+#                   create_time
+#                }
+#            }
+#           "skipPrivateCheck": false          
 #       }
 #   }
 # }
@@ -110,7 +113,7 @@ try:
                         if status is utils.PlayabilityStatus.OK:
                             continue
 
-                        files = [fetched[channel_name][video_id][m3u8_id]["file"] for m3u8_id in fetched[channel_name][video_id]]
+                        files = [fetched[channel_name][video_id]["fregments"][m3u8_id]["file"] for m3u8_id in fetched[channel_name][video_id]["fregments"]]
 
                         if status is utils.PlayabilityStatus.PRIVATED:
                             message = f"[{video_id}](https://youtu.be/{video_id}) is privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
