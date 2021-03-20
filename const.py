@@ -1,12 +1,15 @@
 # Used for identify features etc., DO NOT MODIFY
-VERSION = "0.2b"
+VERSION = "0.3b"
 # DO NOT MODIFY END
 
 TIME_BETWEEN_CHECK = 10
 TIME_BETWEEN_CLEAR = 3600 # An hour
 EXPIRY_TIME = 3600 * 6
 HTTP_RETRY = 3
+
 BASE_JSON_DIR = "jsons"
+LOGS_DIR = "logs"
+
 CHANNELS_JSON = "channels.json"
 FETCHED_JSON = "fetched.json"
 

@@ -16,6 +16,9 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 if not os.path.exists(const.BASE_JSON_DIR):
     os.makedirs(const.BASE_JSON_DIR)
 
+if not os.path.exists(const.LOGS_DIR):
+    os.makedirs(const.LOGS_DIR)
+
 with open(const.CHANNELS_JSON, encoding="utf8") as f:
     CHANNELS = json.load(f)
 
@@ -114,6 +117,9 @@ try:
                             continue
 
                         files = [fetched[channel_name][video_id]["fregments"][m3u8_id]["file"] for m3u8_id in fetched[channel_name][video_id]["fregments"]]
+                        log_file_path = os.path.join(const.LOGS_DIR, f"{video_id}.html")
+                        if os.path.isfile(log_file_path):
+                            files.append(log_file_path)
 
                         if status is utils.PlayabilityStatus.PRIVATED:
                             message = f"[{video_id}](https://youtu.be/{video_id}) is privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."

@@ -2,6 +2,7 @@ import urllib.request
 import re
 import time
 from enum import Enum, auto
+import os
 
 from threading import Timer
 
@@ -98,6 +99,8 @@ def get_video_status(video_id):
         elif '"status":"OK"' in html:
             return PlayabilityStatus.OK
         else:
+            with open(os.path.join(const.LOGS_DIR, f"{video_id}.html"), "w", encoding="utf8") as f:
+                f.write(html)
             return PlayabilityStatus.UNKNOWN
 
 def log(msg):
