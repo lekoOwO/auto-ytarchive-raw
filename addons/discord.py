@@ -1,7 +1,7 @@
 import json
 import urllib.request
 
-import addon_utils as utils
+import addons.addon_utils as utils
 
 def send(webhook_url, message, files=None, version="1.0"):
     payload = [

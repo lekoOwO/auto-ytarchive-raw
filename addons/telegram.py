@@ -4,7 +4,7 @@ from zipfile import ZipFile
 import tempfile
 import os
 
-import addon_utils as utils
+import addons.addon_utils as utils
 
 def send(token, chat_id, message):
     payload = {
