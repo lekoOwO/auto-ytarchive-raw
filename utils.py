@@ -6,7 +6,6 @@ from enum import Enum, auto
 from threading import Timer
 
 import const
-import utils
 
 class PlayabilityStatus(Enum):
     PRIVATED = auto()
@@ -47,7 +46,7 @@ def urlopen(url, retry = 0):
     except urllib.error.HTTPError as e:
         if e.code == 503:
             if retry < const.HTTP_RETRY:
-                utils.warn(f" Get {e.code} Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+                warn(f" Get {e.code} Error. Trying {retry+1}/{const.HTTP_RETRY}...")
                 time.sleep(1)
                 return urlopen(url, retry+1)
             else:
@@ -77,7 +76,7 @@ def is_live(channel_id):
         elif "/channel/" in og_url or "/user/" in og_url:
             return False
         else:
-            utils.warn(f" Something weird happened on checking Live for {channel_id}...")
+            warn(f" Something weird happened on checking Live for {channel_id}...")
             return False
 
 def get_video_status(video_id):
