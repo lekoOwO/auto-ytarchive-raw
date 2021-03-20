@@ -110,6 +110,8 @@ try:
                         if status is utils.PlayabilityStatus.OK:
                             continue
 
+                        files = [fetched[channel_name][video_id][m3u8_id]["file"] for m3u8_id in fetched[channel_name][video_id]]
+
                         if status is utils.PlayabilityStatus.PRIVATED:
                             message = f"[{video_id}](https://youtu.be/{video_id}) is privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
                         elif status is utils.PlayabilityStatus.REMOVED:
@@ -120,11 +122,14 @@ try:
                             message = f"[{video_id}](https://youtu.be/{video_id}) occurred sth weird on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
                         elif status is utils.PlayabilityStatus.MEMBERS_ONLY:
                             message = f"[{video_id}](https://youtu.be/{video_id}) is member-only on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
-                            
+                                
                         if const.ENABLED_MODULES["discord"]:
-                            discord.send(const.DISCORD_WEBHOOK_URL, message, const.VERSION)
+                            discord.send(const.DISCORD_WEBHOOK_URL, message, version=const.VERSION, files=(files if const.DISCORD_SEND_FILES else None))
                         if const.ENABLED_MODULES["telegram"]:
-                            telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
+                            if const.TELEGRAM_SEND_FILES:
+                                telegram.send_files(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message, files)
+                            else:
+                                telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
 
                         fetched[channel_name][video_id]["skipPrivateCheck"] = True
                         save()
