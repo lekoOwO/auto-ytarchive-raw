@@ -1,12 +1,24 @@
-import urllib.request
+import urllib.request, urllib.parse
 import re
 import time
 from enum import Enum, auto
 import os
 
+import functools
+import http.client
+
+import ipaddress
+import random
+
 from threading import Timer
 
 import const
+
+def log(msg):
+    print(f"[INFO]{msg}")
+
+def warn(msg):
+    print(f"[WARN]{msg}")
 
 class PlayabilityStatus(Enum):
     PRIVATED = auto()
@@ -41,15 +53,80 @@ class RepeatedTimer(object):
         self._timer.cancel()
         self.is_running = False
 
-def urlopen(url, retry = 0):
+class BoundHTTPHandler(urllib.request.HTTPHandler):
+    def __init__(self, *args, source_address=None, **kwargs):
+        urllib.request.HTTPHandler.__init__(self, *args, **kwargs)
+        self.http_class = functools.partial(http.client.HTTPConnection,
+                source_address=source_address)
+
+    def http_open(self, req):
+        return self.do_open(self.http_class, req)
+
+class BoundHTTPSHandler(urllib.request.HTTPSHandler):
+    def __init__(self, *args, source_address=None, **kwargs):
+        urllib.request.HTTPSHandler.__init__(self, *args, **kwargs)
+        self.https_class = functools.partial(http.client.HTTPSConnection,
+                source_address=source_address)
+
+    def https_open(self, req):
+        return self.do_open(self.https_class, req,
+                context=self._context, check_hostname=self._check_hostname)
+
+def get_random_line(filepath: str) -> str:
+    file_size = os.path.getsize(filepath)
+    with open(filepath, 'rb') as f:
+        while True:
+            pos = random.randint(0, file_size)
+            if not pos:  # the first line is chosen
+                return f.readline().decode()  # return str
+            f.seek(pos)  # seek to random position
+            f.readline()  # skip possibly incomplete line
+            line = f.readline()  # read next (full) line
+            if line:
+                return line.decode()
+            # else: line is empty -> EOF -> try another position in next iteration
+
+def is_ip(ip):
     try:
-        return urllib.request.urlopen(url)
+        ip = ipaddress.ip_address(ip)
+        return True
+    except ValueError:
+        return False
+
+def get_pool_ip():
+    if const.IP_POOL:
+        if os.path.isfile(const.IP_POOL):
+            for _ in range(3): 
+                ip = get_random_line(const.IP_POOL).rstrip().lstrip()
+                if is_ip(ip):
+                    return ip
+    return None
+
+def urlopen(url, retry=0, source_address="random"):
+    try:
+        if source_address == "random":
+            source_address = get_pool_ip()
+        if not is_ip(source_address):
+            source_address = None
+        if source_address:
+            log(f" Using IP: {source_address}")
+            schema = "https"
+            if type(url) == str:
+                schema = urllib.parse.urlsplit(url).scheme
+            elif isinstance(url, urllib.request.Request):
+                schema = urllib.parse.urlsplit(url.full_url).scheme
+
+            handler = (BoundHTTPHandler if schema == "http" else BoundHTTPSHandler)(source_address=(source_address, 0))
+            opener = urllib.request.build_opener(handler)
+            return opener.open(url)
+        else:
+            return urllib.request.urlopen(url)
     except urllib.error.HTTPError as e:
         if e.code == 503:
             if retry < const.HTTP_RETRY:
                 warn(f" Get {e.code} Error. Trying {retry+1}/{const.HTTP_RETRY}...")
                 time.sleep(1)
-                return urlopen(url, retry+1)
+                return urlopen(url, retry+1, get_pool_ip() if source_address else None)
             else:
                 raise e
         else:
@@ -102,9 +179,3 @@ def get_video_status(video_id):
             with open(os.path.join(const.LOGS_DIR, f"{video_id}.html"), "w", encoding="utf8") as f:
                 f.write(html)
             return PlayabilityStatus.UNKNOWN
-
-def log(msg):
-    print(f"[INFO]{msg}")
-
-def warn(msg):
-    print(f"[WARN]{msg}")
