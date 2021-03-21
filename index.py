@@ -116,6 +116,9 @@ try:
                         if status is utils.PlayabilityStatus.OK:
                             continue
 
+                        if status is utils.PlayabilityStatus.OFFLINE:
+                            continue
+
                         files = [fetched[channel_name][video_id]["fregments"][m3u8_id]["file"] for m3u8_id in fetched[channel_name][video_id]["fregments"]]
                         log_file_path = os.path.join(const.LOGS_DIR, f"{video_id}.html")
                         if os.path.isfile(log_file_path):

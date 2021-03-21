@@ -25,6 +25,7 @@ class PlayabilityStatus(Enum):
     COPYRIGHTED = auto()
     REMOVED = auto()
     MEMBERS_ONLY = auto()
+    OFFLINE = auto()
     OK = auto()
     UNKNOWN = auto()
 
@@ -175,6 +176,8 @@ def get_video_status(video_id):
             return PlayabilityStatus.REMOVED
         elif '"status":"OK"' in html:
             return PlayabilityStatus.OK
+        elif '"status":"LIVE_STREAM_OFFLINE"' in html:
+            return PlayabilityStatus.OFFLINE
         else:
             with open(os.path.join(const.LOGS_DIR, f"{video_id}.html"), "w", encoding="utf8") as f:
                 f.write(html)
