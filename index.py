@@ -159,16 +159,27 @@ try:
                     fetched[channel_name] = {
                         video_id: {
                             "fregments": {},
-                            "skipPrivateCheck": False
+                            "skipPrivateCheck": False,
+                            "skipOnliveNotify": False
                         }
                     }
                 
                 if video_id not in fetched[channel_name]:
                     fetched[channel_name][video_id] = {
                         "fregments": {},
-                        "skipPrivateCheck": False
+                        "skipPrivateCheck": False,
+                        "skipOnliveNotify": False
                     }
-
+                
+                if not fetched[channel_name][video_id]["skipOnliveNotify"]:
+                    onlive_message = f"[{video_id}](https://youtu.be/{video_id}) is live on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
+                    if const.ENABLED_MODULES_ONLIVE["discord"]:
+                        discord.send(const.DISCORD_WEBHOOK_URL_ONLIVE, onlive_message, version=const.VERSION)
+                        fetched[channel_name][video_id]["skipOnliveNotify"] = True
+                    if const.ENABLED_MODULES_ONLIVE["telegram"]:    
+                        telegram.send(const.TELEGRAM_BOT_TOKEN_ONLIVE, const.TELEGRAM_CHAT_ID_ONLIVE, onlive_message)
+                        fetched[channel_name][video_id]["skipOnliveNotify"] = True
+                    
                 filepath = os.path.join(const.BASE_JSON_DIR, f"{m3u8_id}.json")
                 getjson.get_json(video_url, filepath)
 

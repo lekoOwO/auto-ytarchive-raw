@@ -19,6 +19,7 @@ IP_POOL = None
 # Send to discord on video privated
 ENABLE_PRIVATE_CHECK = False
 
+# Callbacks
 ENABLED_MODULES = {
     "discord": False,
     "telegram": False
@@ -30,3 +31,14 @@ DISCORD_SEND_FILES = False
 TELEGRAM_BOT_TOKEN = None
 TELEGRAM_CHAT_ID = None
 TELEGRAM_SEND_FILES = False
+
+# On live
+ENABLED_MODULES_ONLIVE = {
+    "discord": False,
+    "telegram": False
+}
+
+DISCORD_WEBHOOK_URL_ONLIVE = None
+
+TELEGRAM_BOT_TOKEN_ONLIVE = TELEGRAM_BOT_TOKEN
+TELEGRAM_CHAT_ID_ONLIVE = None
