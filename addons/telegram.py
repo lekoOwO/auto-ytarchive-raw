@@ -26,13 +26,17 @@ def send_files(token, chat_id, message, files):
         ("parse_mode", "markdown")
     ]
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        zip_path = os.path.join(tmp_dir, "archive.zip")
-        with ZipFile(zip_path, 'w') as zip_obj:
-            for x in files:
-                zip_obj.write(x)
-        payload.append(("document", f"f'{zip_path}'"))
+    if len(files) > 1:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            zip_path = os.path.join(tmp_dir, "archive.zip")
+            with ZipFile(zip_path, 'w') as zip_obj:
+                for x in files:
+                    zip_obj.write(x)
+            payload.append(("document", f"f'{zip_path}'"))
 
+            content_type, payload = utils.encode_multipart_formdata(payload)
+    else:
+        payload.append(("document", f"f'{files[0]}'"))
         content_type, payload = utils.encode_multipart_formdata(payload)
 
     req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendDocument", method="POST")
