@@ -122,6 +122,12 @@ def urlopen(url, retry=0, source_address="random"):
             return opener.open(url)
         else:
             return urllib.request.urlopen(url)
+    except http.client.IncompleteRead as e:
+        if retry < const.HTTP_RETRY:
+            warn(f" Get IncompleteRead Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+            return urlopen(url, retry+1, get_pool_ip() if source_address else None)
+        else:
+            raise e
     except urllib.error.HTTPError as e:
         if e.code == 503:
             if retry < const.HTTP_RETRY:
@@ -134,7 +140,8 @@ def urlopen(url, retry=0, source_address="random"):
             raise e
     except urllib.error.URLError as e:
         if retry < const.HTTP_RETRY:
-            return urlopen(url, retry + 1)
+            warn(f" Get urllib.error.URLError Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+            return urlopen(url, retry+1, get_pool_ip() if source_address else None)
         else:
             raise e
 
