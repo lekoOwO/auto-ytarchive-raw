@@ -156,8 +156,8 @@ def is_live(channel_id):
             og_url = re.search(r'<link rel="canonical" href="(.+?)">', html).group(1)
 
         if "watch?v=" in og_url:
-            if "LIVE_STREAM_OFFLINE" in html:
-                return False # Scheduled
+            if 'hlsManifestUrl' not in html:
+                return False # No stream found
             return og_url
         elif "/channel/" in og_url or "/user/" in og_url:
             return False
