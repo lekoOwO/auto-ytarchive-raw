@@ -8,7 +8,7 @@ import json
 
 import utils
 
-VERSION = "1.3.1"
+VERSION = "1.3.2"
 
 PRIORITY = {
     "VIDEO": [
@@ -79,14 +79,14 @@ def get_json(video_url, file=None):
 
         for itag in PRIORITY["VIDEO"]:
             itag = str(itag)
-            if itag in match:
+            if itag in match and "noclen" in match[itag]: # With `noclen` param, the video can be downloaded by fregments.
                 best["video"] = {
                     itag: match[itag].replace("\\u0026", "\u0026")
                 }
                 break
         for itag in PRIORITY["AUDIO"]:
             itag = str(itag)
-            if itag in match:
+            if itag in match and "noclen" in match[itag]:
                 best["audio"] = {
                     itag: match[itag].replace("\\u0026", "\u0026")
                 }
