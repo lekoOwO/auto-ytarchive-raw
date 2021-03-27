@@ -11,6 +11,14 @@ import const
 from addons import discord
 from addons import telegram
 
+if const.CHAT_DIR:
+    import getchat
+    global chats
+    chats = {}
+
+    if not os.path.exists(const.CHAT_DIR):
+        os.makedirs(const.CHAT_DIR)
+
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 if not os.path.exists(const.BASE_JSON_DIR):
@@ -67,7 +75,6 @@ def clear_expiry():
             for m3u8_id in fetched[channel_name][video_id]["fregments"]:
                 if time.time() - fetched[channel_name][video_id]["fregments"][m3u8_id]["create_time"] > const.EXPIRY_TIME:
                     utils.log(f"[{channel_name}] {m3u8_id} has expired. Clearing...")
-
                     clear_queue.append({
                         "channel_name": channel_name,
                         "video_id": video_id,
@@ -90,16 +97,30 @@ def clear_expiry():
                  })
     for x in clear_queue:
         utils.log(f"[{x['channel_name']}] {x['video_id']} has all gone. Clearing...")
+        if "chat" in fetched[x['channel_name']][x['video_id']]:
+            try:
+                os.remove(fetched[x['channel_name']][x['video_id']]["chat"])
+            except:
+                utils.warn(f"[{x['channel_name']}] Error occurs when deleting chat file for {x['video_id']}. Ignoring...")
         fetched[x['channel_name']].pop(x['video_id'])
 
     save()
 
 try:
     expiry_task = utils.RepeatedTimer(const.TIME_BETWEEN_CLEAR, clear_expiry)
+    if const.CHAT_DIR:
+        def clear_chat():
+            utils.log(f" Running chat instance clearing task.")
+            global chats
+            for video_id in chats:
+                if chats[video_id].is_finished():
+                    chats.pop(video_id)
+                    utils.log(f" Chat instance {video_id} has been cleared.")
+            
+        chat_expiry_task = utils.RepeatedTimer(const.CHAT_TASK_CLEAR_INTERVAL, clear_chat)
 
     while True:
         for channel_name, channel_id in CHANNELS.items():
-
             # Check for privated videos
             if const.ENABLE_PRIVATE_CHECK:
                 if channel_name in fetched:
@@ -123,6 +144,11 @@ try:
                         log_file_path = os.path.join(const.LOGS_DIR, f"{video_id}.html")
                         if os.path.isfile(log_file_path):
                             files.append(log_file_path)
+                        if "chat" in fetched[channel_name][video_id]:
+                            if os.path.isfile(fetched[channel_name][video_id]["chat"]):
+                                files.append(fetched[channel_name][video_id]["chat"])
+                            else:
+                                utils.warn(f" Chat file for {video_id} not found. This shouldn't happen, maybe someone stealed it...?")
 
                         if status is utils.PlayabilityStatus.PRIVATED:
                             message = f"[{video_id}](https://youtu.be/{video_id}) is privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
@@ -173,6 +199,13 @@ try:
                         "skipPrivateCheck": False,
                         "skipOnliveNotify": False
                     }
+
+                if const.CHAT_DIR:
+                    if video_id not in chats:
+                        utils.log(f"[{channel_name}] Downloading chat...")
+                        chat_file = os.path.join(const.CHAT_DIR, f"{video_id}.chat")
+                        chats[video_id] = getchat.ChatArchiver(video_url, chat_file)
+                        fetched[channel_name][video_id]["chat"] = chat_file
                 
                 if not fetched[channel_name][video_id]["skipOnliveNotify"]:
                     onlive_message = f"[{video_id}](https://youtu.be/{video_id}) is live on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
@@ -203,3 +236,8 @@ except KeyboardInterrupt:
     utils.log(" Forced stop.")
 finally:
     expiry_task.stop()
+
+    if const.CHAT_DIR:
+        chat_expiry_task.stop()
+        for video_id in chats:
+            chats[video_id].stop()

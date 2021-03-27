@@ -42,3 +42,11 @@ DISCORD_WEBHOOK_URL_ONLIVE = None
 
 TELEGRAM_BOT_TOKEN_ONLIVE = TELEGRAM_BOT_TOKEN
 TELEGRAM_CHAT_ID_ONLIVE = None
+
+# ====== Chat Downloader ====== #
+# Still not functional
+CHAT_DIR = "chat"
+CHAT_INACTIVITY_DURATION = 30
+CHAT_BUFFER_TIME = 1
+CHAT_TASK_CLEAR_INTERVAL = 300
+# ====== Chat Downloader END ====== #
