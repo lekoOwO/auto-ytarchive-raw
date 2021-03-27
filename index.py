@@ -11,6 +11,8 @@ import const
 from addons import discord
 from addons import telegram
 
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
 if const.CHAT_DIR:
     import getchat
     global chats
@@ -18,9 +20,7 @@ if const.CHAT_DIR:
 
     if not os.path.exists(const.CHAT_DIR):
         os.makedirs(const.CHAT_DIR)
-
-os.chdir(os.path.dirname(os.path.realpath(__file__)))
-
+        
 if not os.path.exists(const.BASE_JSON_DIR):
     os.makedirs(const.BASE_JSON_DIR)
 
