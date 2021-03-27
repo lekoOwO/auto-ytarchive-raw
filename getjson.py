@@ -44,7 +44,7 @@ def get_youtube_video_info(video_id, html):
         "channelName": re.search(r'<link itemprop="name" content="(.+?)">', html).group(1),
         "channelURL": "https://www.youtube.com/channel/" + re.search(r'<meta itemprop="channelId" content="(.+?)">', html).group(1),
         "description": re.search(r'"description":{"simpleText":"(.+?)"},', html).group(1).replace("\\n", "\n") if '"description":{"simpleText":"' in html else "",
-        "thumbnail": get_image(re.search(r'<link rel="image_src" href="(.+?)">', html).group(1))
+        "thumbnail": get_image(re.search(r'<link rel="image_src" href="(.+?)">', html).group(1) if '<link rel="image_src" href="' in html else f"https://img.youtube.com/vi/{id}/maxresdefault.jpg")
     }
 
 def get_image(url):
