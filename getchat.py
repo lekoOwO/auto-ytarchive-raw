@@ -12,7 +12,11 @@ class ChatArchiver:
         self.url = url
         self.output_file = output_file
         with open(self.output_file, "a+", encoding="utf8") as f:
-            f.write(f"# Time: {time.time()}, URL: {url}\n")
+            data = json.dumps({
+                "time": time.time(),
+                "url": url
+            }, ensure_ascii=False)
+            f.write(f"# {data}\n")
 
         self.chat = ChatDownloader().get_chat(url, message_groups='all', inactivity_timeout=const.CHAT_INACTIVITY_DURATION)
         self.timer = utils.RepeatedTimer(const.CHAT_BUFFER_TIME, self.__save_chat)
