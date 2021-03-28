@@ -44,9 +44,13 @@ TELEGRAM_BOT_TOKEN_ONLIVE = TELEGRAM_BOT_TOKEN
 TELEGRAM_CHAT_ID_ONLIVE = None
 
 # ====== Chat Downloader ====== #
-CHAT_DIR = "chat"
+# `pip install chat_downloader`
+CHAT_DIR = None
+
 CHAT_INACTIVITY_DURATION = 30
 CHAT_BUFFER_TIME = 1
 CHAT_TASK_CLEAR_INTERVAL = 300
+
+# `pip install brotlipy`
 BROTLI_COMPRESS = False
 # ====== Chat Downloader END ====== #
