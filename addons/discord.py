@@ -4,7 +4,7 @@ import urllib.request
 import addons.addon_utils as utils
 import const
 
-if const.BROTLI_COMPRESS:
+if const.CHAT_COMPRESS:
     import pathlib
     import os
 
@@ -15,12 +15,12 @@ def send(webhook_url, message, files=None, version="1.0"):
         }))
     ]
 
-    if const.BROTLI_COMPRESS:
+    if const.CHAT_COMPRESS:
         compressed = []
 
     if files:
         for i in range(len(files)):
-            if const.BROTLI_COMPRESS and pathlib.Path(files[i]).suffix == ".chat":
+            if const.CHAT_COMPRESS and pathlib.Path(files[i]).suffix == ".chat":
                 filename = utils.compress_file(files[i])
                 compressed.append(filename)
                 payload.append((f"file{i}", f"f'{filename}'"))
@@ -35,7 +35,7 @@ def send(webhook_url, message, files=None, version="1.0"):
 
     with urllib.request.urlopen(req, data=payload) as f:
         status = f.getcode()
-        if const.BROTLI_COMPRESS:
+        if const.CHAT_COMPRESS:
             for x in compressed:
                 try:
                     os.remove(x)

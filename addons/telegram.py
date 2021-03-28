@@ -6,7 +6,7 @@ import os
 import addons.addon_utils as utils
 import const
 
-if const.BROTLI_COMPRESS:
+if const.CHAT_COMPRESS:
     import pathlib
 
 def send(token, chat_id, message):
@@ -32,7 +32,7 @@ def send_files(token, chat_id, message, files):
         ("parse_mode", "markdown")
     ]
 
-    if const.BROTLI_COMPRESS and pathlib.Path(files[0]).suffix == ".chat":
+    if const.CHAT_COMPRESS and pathlib.Path(files[0]).suffix == ".chat":
         compressed = utils.compress_file(files[0])
         payload.append(("document", f"f'{compressed}'"))
     else:
@@ -44,7 +44,7 @@ def send_files(token, chat_id, message, files):
 
     with urllib.request.urlopen(req, data=payload) as f:
         status = f.getcode()
-        if const.BROTLI_COMPRESS and pathlib.Path(files[0]).suffix == ".chat":
+        if const.CHAT_COMPRESS and pathlib.Path(files[0]).suffix == ".chat":
             try:
                 os.remove(compressed)
             except:
@@ -60,11 +60,11 @@ def send_multi_files(token, chat_id, message, files):
     ]
 
     media = []
-    if const.BROTLI_COMPRESS:
+    if const.CHAT_COMPRESS:
         compressed = []
 
     for i in range(len(files)):
-        if const.BROTLI_COMPRESS and pathlib.Path(files[i]).suffix == ".chat":
+        if const.CHAT_COMPRESS and pathlib.Path(files[i]).suffix == ".chat":
             filename = utils.compress_file(files[i])
             compressed.append(filename)
             payload.append((f"file{i}", f"f'{filename}'"))
@@ -85,7 +85,7 @@ def send_multi_files(token, chat_id, message, files):
 
     with urllib.request.urlopen(req, data=payload) as f:
         status = f.getcode()
-        if const.BROTLI_COMPRESS:
+        if const.CHAT_COMPRESS:
             for x in compressed:
                 try:
                     os.remove(x)

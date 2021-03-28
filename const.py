@@ -52,5 +52,6 @@ CHAT_BUFFER_TIME = 1
 CHAT_TASK_CLEAR_INTERVAL = 300
 
 # `pip install brotlipy`
-BROTLI_COMPRESS = False
+# `pip install zstandard`
+CHAT_COMPRESS = None # None, "brotli", "zstd"
 # ====== Chat Downloader END ====== #
