@@ -2,6 +2,11 @@ import json
 import urllib.request
 
 import addons.addon_utils as utils
+import const
+
+if const.BROTLI_COMPRESS:
+    import pathlib
+    import os
 
 def send(webhook_url, message, files=None, version="1.0"):
     payload = [
@@ -10,9 +15,17 @@ def send(webhook_url, message, files=None, version="1.0"):
         }))
     ]
 
+    if const.BROTLI_COMPRESS:
+        compressed = []
+
     if files:
         for i in range(len(files)):
-            payload.append((f"file{i}", f"f'{files[i]}'"))
+            if const.BROTLI_COMPRESS and pathlib.Path(files[i]).suffix == ".chat":
+                filename = utils.compress_file(files[i])
+                compressed.append(filename)
+                payload.append((f"file{i}", f"f'{filename}'"))
+            else:
+                payload.append((f"file{i}", f"f'{files[i]}'"))
 
     content_type, payload = utils.encode_multipart_formdata(payload)
 
@@ -20,4 +33,12 @@ def send(webhook_url, message, files=None, version="1.0"):
     req.add_header('Content-Type', content_type)
     req.add_header('User-Agent', f'Auto YTArchive Raw {version}')
 
-    return urllib.request.urlopen(req, data=payload)
+    with urllib.request.urlopen(req, data=payload) as f:
+        status = f.getcode()
+        if const.BROTLI_COMPRESS:
+            for x in compressed:
+                try:
+                    os.remove(x)
+                except:
+                    pass
+        return status

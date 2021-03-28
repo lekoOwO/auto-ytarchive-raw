@@ -1,6 +1,7 @@
 import json
 import time
 import os
+import threading
 
 import utils
 import getm3u8
@@ -20,7 +21,7 @@ if const.CHAT_DIR:
 
     if not os.path.exists(const.CHAT_DIR):
         os.makedirs(const.CHAT_DIR)
-        
+
 if not os.path.exists(const.BASE_JSON_DIR):
     os.makedirs(const.BASE_JSON_DIR)
 
@@ -162,12 +163,15 @@ try:
                             message = f"[{video_id}](https://youtu.be/{video_id}) is member-only on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
                                 
                         if const.ENABLED_MODULES["discord"]:
-                            discord.send(const.DISCORD_WEBHOOK_URL, message, version=const.VERSION, files=(files if const.DISCORD_SEND_FILES else None))
+                            threading.Thread(target=discord.send, args=(const.DISCORD_WEBHOOK_URL, message), kwargs={
+                                "version": const.VERSION,
+                                "files": files if const.DISCORD_SEND_FILES else None
+                            }, daemon=True).start()
                         if const.ENABLED_MODULES["telegram"]:
                             if const.TELEGRAM_SEND_FILES:
-                                telegram.send_files(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message, files)
+                                threading.Thread(target=telegram.send_files, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message, files), daemon=True).start()
                             else:
-                                telegram.send(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)
+                                threading.Thread(target=telegram.send, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)).start()
 
                         fetched[channel_name][video_id]["skipPrivateCheck"] = True
                         save()

@@ -1,7 +1,13 @@
 import re
 import random 
 import os
-import mimetypes 
+import mimetypes
+
+import const
+
+if const.BROTLI_COMPRESS:
+    import brotli
+    import tempfile
  
 def read_file_as_content(filename): 
   #print filename 
@@ -47,4 +53,15 @@ def encode_multipart_formdata(fields):
 
   body = CRLF.join(L) 
   content_type = f'multipart/form-data; boundary={BOUNDARY}'
-  return content_type, body 
+  return content_type, body
+  
+def compress_file(file):
+    with open(file, encoding="utf8") as f:
+        compressor = brotli.Compressor(mode=brotli.BrotliEncoderMode.TEXT)
+        with tempfile.NamedTemporaryFile(prefix=(os.path.basename(file)+"."), suffix=".br", delete=False) as l:
+            for line in f:
+                data = line.encode()
+                data = compressor.compress(data)
+                l.write(compressor.flush())
+            l.write(compressor.finish())
+            return l.name
