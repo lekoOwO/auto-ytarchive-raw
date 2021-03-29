@@ -15,3 +15,8 @@ def get_private_check_text(status):
         return "[{video_id}](https://youtu.be/{video_id}) offlined on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
     else:
         return "[{video_id}](https://youtu.be/{video_id}) occurred sth very weird on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
+
+ON_LIVE_MESSAGE = "[{video_id}](https://youtu.be/{video_id}) is live on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
+
+PUSHALERT_TITLE = "🔴 Hololive Live Alert"
+PUSHALERT_MESSAGE = "{channel_name} is Live now!"
