@@ -47,6 +47,9 @@ TELEGRAM_CHAT_ID_ONLIVE = None
 PUSHALERT_API_KEY = None
 PUSHALERT_ICON = None
 
+FCM_API_KEY = None
+FCM_ICON = None
+
 # ====== Chat Downloader ====== #
 # `pip install chat_downloader`
 CHAT_DIR = None

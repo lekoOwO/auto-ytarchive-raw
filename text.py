@@ -20,3 +20,6 @@ ON_LIVE_MESSAGE = "[{video_id}](https://youtu.be/{video_id}) is live on [{channe
 
 PUSHALERT_TITLE = "🔴 Hololive Live Alert"
 PUSHALERT_MESSAGE = "{channel_name} is Live now!"
+
+FCM_TITLE = "🔴 Hololive Live Alert"
+FCM_MESSAGE = "{channel_name} is Live now!"

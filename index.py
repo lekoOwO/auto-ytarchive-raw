@@ -13,6 +13,7 @@ import text
 from addons import discord
 from addons import telegram
 from addons import pushalert
+from addons import fcm
 
 if const.CALLBACK_AFTER_EXPIRY:
     from callback import callback as expiry_callback
@@ -133,7 +134,7 @@ try:
                 if chats[video_id].is_finished():
                     if const.CHAT_CALLBACK_AFTER_EXPIRY:
                         channel_name = get_channel_name_by_video_id(video_id)
-                        chat_callback.callback(chats[video_id], fetched[channel_name][video_id] if channel_name else None)
+                        chat_callback.callback(chats[video_id], channel_name=channel_name, video_id=video_id)
                     chats.pop(video_id)
                     utils.log(f" Chat instance {video_id} has been cleared.")
             
@@ -232,7 +233,10 @@ try:
                     if const.ENABLED_MODULES_ONLIVE["pushalert"]:
                         pushalert.onlive(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
                         fetched[channel_name][video_id]["skipOnliveNotify"] = True
-                    
+                    if const.ENABLED_MODULES_ONLIVE["fcm"]:
+                        fcm.onlive(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
+                        fetched[channel_name][video_id]["skipOnliveNotify"] = True
+
                 filepath = os.path.join(const.BASE_JSON_DIR, f"{m3u8_id}.json")
                 getjson.get_json(video_url, filepath)
 
