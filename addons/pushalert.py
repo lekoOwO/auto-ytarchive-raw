@@ -18,4 +18,7 @@ def onlive(video_id, channel_id, channel_name):
     req = urllib.request.Request(url="https://api.pushalert.co/rest/v1/send", data=data)
     req.add_header("Authorization", f"api_key={const.PUSHALERT_API_KEY}")
 
-    return utils.urlopen(req)
+    try:
+        return utils.urlopen(req)
+    except:
+        return
