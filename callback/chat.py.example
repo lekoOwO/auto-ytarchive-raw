@@ -1,0 +1,3 @@
+def callback(chat_instance, fetched_data=None):
+    # Caution: Do use try-except block here to prevent main program craches.
+    pass

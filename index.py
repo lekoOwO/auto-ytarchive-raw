@@ -8,9 +8,16 @@ import getm3u8
 import getjson
 
 import const
+import text
 
 from addons import discord
 from addons import telegram
+
+if const.CALLBACK_AFTER_EXPIRY:
+    from callback import callback as expiry_callback
+
+if const.CHAT_CALLBACK_AFTER_EXPITY:
+    from callback import chat as chat_callback
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -98,6 +105,8 @@ def clear_expiry():
                  })
     for x in clear_queue:
         utils.log(f"[{x['channel_name']}] {x['video_id']} has all gone. Clearing...")
+        if const.CALLBACK_AFTER_EXPIRY:
+            expiry_callback.callback(fetched[x['channel_name']][x['video_id']])
         if "chat" in fetched[x['channel_name']][x['video_id']]:
             try:
                 os.remove(fetched[x['channel_name']][x['video_id']]["chat"])
@@ -110,11 +119,20 @@ def clear_expiry():
 try:
     expiry_task = utils.RepeatedTimer(const.TIME_BETWEEN_CLEAR, clear_expiry)
     if const.CHAT_DIR:
+        def get_channel_name_by_video_id(video_id):
+            for channel_name in fetched:
+                if video_id in fetched[channel_name]:
+                    return channel_name
+            return None
+
         def clear_chat():
             utils.log(f" Running chat instance clearing task.")
             global chats
             for video_id in chats:
                 if chats[video_id].is_finished():
+                    if const.CHAT_CALLBACK_AFTER_EXPITY:
+                        channel_name = get_channel_name_by_video_id(video_id)
+                        chat_callback.callback(chats[video_id], fetched[channel_name][video_id] if channel_name else None)
                     chats.pop(video_id)
                     utils.log(f" Chat instance {video_id} has been cleared.")
             
@@ -151,16 +169,7 @@ try:
                             else:
                                 utils.warn(f" Chat file for {video_id} not found. This shouldn't happen, maybe someone stealed it...?")
 
-                        if status is utils.PlayabilityStatus.PRIVATED:
-                            message = f"[{video_id}](https://youtu.be/{video_id}) is privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
-                        elif status is utils.PlayabilityStatus.REMOVED:
-                            message = f"[{video_id}](https://youtu.be/{video_id}) is removed on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
-                        elif status is utils.PlayabilityStatus.COPYRIGHTED:
-                            message = f"[{video_id}](https://youtu.be/{video_id}) is copyrighted on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
-                        elif status is utils.PlayabilityStatus.UNKNOWN:
-                            message = f"[{video_id}](https://youtu.be/{video_id}) occurred sth weird on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
-                        elif status is utils.PlayabilityStatus.MEMBERS_ONLY:
-                            message = f"[{video_id}](https://youtu.be/{video_id}) is member-only on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
+                        message = text.get_private_check_text(status).format(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
                                 
                         if const.ENABLED_MODULES["discord"]:
                             threading.Thread(target=discord.send, args=(const.DISCORD_WEBHOOK_URL, message), kwargs={
