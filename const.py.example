@@ -61,4 +61,4 @@ CHAT_COMPRESS = None # None, "brotli", "zstd"
 # ====== Chat Downloader END ====== #
 
 CALLBACK_AFTER_EXPIRY = False
-CHAT_CALLBACK_AFTER_EXPITY = False
+CHAT_CALLBACK_AFTER_EXPIRY = False

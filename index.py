@@ -17,7 +17,7 @@ from addons import pushalert
 if const.CALLBACK_AFTER_EXPIRY:
     from callback import callback as expiry_callback
 
-if const.CHAT_CALLBACK_AFTER_EXPITY:
+if const.CHAT_CALLBACK_AFTER_EXPIRY:
     from callback import chat as chat_callback
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -131,7 +131,7 @@ try:
             global chats
             for video_id in chats:
                 if chats[video_id].is_finished():
-                    if const.CHAT_CALLBACK_AFTER_EXPITY:
+                    if const.CHAT_CALLBACK_AFTER_EXPIRY:
                         channel_name = get_channel_name_by_video_id(video_id)
                         chat_callback.callback(chats[video_id], fetched[channel_name][video_id] if channel_name else None)
                     chats.pop(video_id)
