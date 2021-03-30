@@ -49,6 +49,7 @@ PUSHALERT_ICON = None
 
 FCM_API_KEY = None
 FCM_ICON = None
+FCM_TARGET = "/topic/all"
 
 # ====== Chat Downloader ====== #
 # `pip install chat_downloader`
