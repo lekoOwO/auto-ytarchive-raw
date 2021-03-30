@@ -36,7 +36,8 @@ TELEGRAM_SEND_FILES = False
 ENABLED_MODULES_ONLIVE = {
     "discord": False,
     "telegram": False,
-    "pushalert": False
+    "pushalert": False,
+    "fcm": False
 }
 
 DISCORD_WEBHOOK_URL_ONLIVE = None
