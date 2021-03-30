@@ -6,8 +6,8 @@ import json
 import urllib.request, urllib.parse
 
 def onlive(video_data):
-    if "thumbnail_url" in video_data['metadata']:
-        image = video_data['metadata']["thumbnail_url"]
+    if "thumbnailUrl" in video_data['metadata']:
+        image = video_data['metadata']["thumbnailUrl"]
     else:
         image = video_data['metadata']["thumbnail"]
 

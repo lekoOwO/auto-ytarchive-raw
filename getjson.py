@@ -8,7 +8,7 @@ import json
 
 import utils
 
-VERSION = "1.4"
+VERSION = "1.4.1"
 
 PRIORITY = {
     "VIDEO": [
@@ -46,7 +46,7 @@ def get_youtube_video_info(video_id, html):
         "channelURL": "https://www.youtube.com/channel/" + re.search(r'<meta itemprop="channelId" content="(.+?)">', html).group(1),
         "description": re.search(r'"description":{"simpleText":"(.+?)"},', html).group(1).replace("\\n", "\n") if '"description":{"simpleText":"' in html else "",
         "thumbnail": get_image(thumbnail_url),
-        "thumbnail_url": thumbnail_url
+        "thumbnailUrl": thumbnail_url
     }
 
 def get_image(url):
