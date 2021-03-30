@@ -108,7 +108,7 @@ def clear_expiry():
     for x in clear_queue:
         utils.log(f"[{x['channel_name']}] {x['video_id']} has all gone. Clearing...")
         if const.CALLBACK_AFTER_EXPIRY:
-            expiry_callback.callback(fetched[x['channel_name']][x['video_id']])
+            expiry_callback.callback(fetched[x['channel_name']][x['video_id']], channel_name=x['channel_name'], video_id=x['video_id'])
         if "chat" in fetched[x['channel_name']][x['video_id']]:
             try:
                 os.remove(fetched[x['channel_name']][x['video_id']]["chat"])
