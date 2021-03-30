@@ -19,7 +19,7 @@ def get_private_check_text(status):
 ON_LIVE_MESSAGE = "[{video_id}](https://youtu.be/{video_id}) is live on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
 
 PUSHALERT_TITLE = "🔴 Hololive Live Alert"
-PUSHALERT_MESSAGE = "{channel_name} is Live now!"
+PUSHALERT_MESSAGE = "{channelName} is Live now!"
 
-FCM_TITLE = "🔴 Hololive Live Alert"
-FCM_MESSAGE = "{channel_name} is Live now!"
+FCM_TITLE = "🔴 {channelName} 開台啦!"
+FCM_MESSAGE = "{title}"

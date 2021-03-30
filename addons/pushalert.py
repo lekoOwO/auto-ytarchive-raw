@@ -4,11 +4,11 @@ import utils
 
 import urllib.request, urllib.parse
 
-def onlive(video_id, channel_id, channel_name):
+def onlive(video_data):
     data = {
-        'title': text.PUSHALERT_TITLE.format(video_id=video_id, channel_name=channel_name, channel_id=channel_id),
-        "message": text.PUSHALERT_MESSAGE.format(video_id=video_id, channel_name=channel_name, channel_id=channel_id),
-        "url": f"https://youtu.be/{video_id}"
+        'title': text.PUSHALERT_TITLE.format(**video_data["metadata"]),
+        "message": text.PUSHALERT_MESSAGE.format(**video_data["metadata"]),
+        "url": f"https://youtu.be/{video_data['metadata']['id']}"
     }
     if const.PUSHALERT_ICON:
         data["icon"] = const.PUSHALERT_ICON

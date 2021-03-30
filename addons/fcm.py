@@ -5,14 +5,14 @@ import json
 
 import urllib.request, urllib.parse
 
-def onlive(video_id, channel_id, channel_name):
+def onlive(video_data):
     data = {
         "to": "/topics/all",
         "validateOnly": False,
         "notification": {
-            'title': text.FCM_TITLE.format(video_id=video_id, channel_name=channel_name, channel_id=channel_id),
-            "body": text.FCM_MESSAGE.format(video_id=video_id, channel_name=channel_name, channel_id=channel_id),
-            "click_action": f"https://youtu.be/{video_id}"
+            'title': text.FCM_TITLE.format(**video_data["metadata"]),
+            "body": text.FCM_MESSAGE.format(**video_data["metadata"]),
+            "click_action": f"https://youtu.be/{video_data['metadata']['id']}"
         }
     }
 

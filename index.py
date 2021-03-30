@@ -221,7 +221,10 @@ try:
                         chat_file = os.path.join(const.CHAT_DIR, f"{video_id}.chat")
                         chats[video_id] = getchat.ChatArchiver(video_url, chat_file)
                         fetched[channel_name][video_id]["chat"] = chat_file
-                
+
+                filepath = os.path.join(const.BASE_JSON_DIR, f"{m3u8_id}.json")
+                video_data = getjson.get_json(video_url, filepath)
+
                 if not fetched[channel_name][video_id]["skipOnliveNotify"]:
                     onlive_message = text.ON_LIVE_MESSAGE.format(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
                     if const.ENABLED_MODULES_ONLIVE["discord"]:
@@ -231,14 +234,11 @@ try:
                         telegram.send(const.TELEGRAM_BOT_TOKEN_ONLIVE, const.TELEGRAM_CHAT_ID_ONLIVE, onlive_message)
                         fetched[channel_name][video_id]["skipOnliveNotify"] = True
                     if const.ENABLED_MODULES_ONLIVE["pushalert"]:
-                        pushalert.onlive(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
+                        pushalert.onlive(video_data)
                         fetched[channel_name][video_id]["skipOnliveNotify"] = True
                     if const.ENABLED_MODULES_ONLIVE["fcm"]:
-                        fcm.onlive(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
+                        fcm.onlive(video_data)
                         fetched[channel_name][video_id]["skipOnliveNotify"] = True
-
-                filepath = os.path.join(const.BASE_JSON_DIR, f"{m3u8_id}.json")
-                getjson.get_json(video_url, filepath)
 
                 utils.log(f"[{channel_name}] Saving {m3u8_id}...")
 
