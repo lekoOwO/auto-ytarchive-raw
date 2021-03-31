@@ -8,14 +8,17 @@ import const
 import utils
 
 class ChatArchiver:
-    def __init__(self, url, output_file):
+    def __init__(self, url, output_file, start_timestamp=None):
         self.url = url
         self.output_file = output_file
         with open(self.output_file, "a+", encoding="utf8") as f:
-            data = json.dumps({
+            data = {
                 "time": time.time(),
                 "url": url
-            }, ensure_ascii=False)
+            }
+            if start_timestamp:
+                data["startTimestamp"] = start_timestamp
+            data = json.dumps(data, ensure_ascii=False)
             f.write(f"# {data}\n")
 
         self.chat = ChatDownloader().get_chat(url, message_groups='all', inactivity_timeout=const.CHAT_INACTIVITY_DURATION)
