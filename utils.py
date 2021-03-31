@@ -1,4 +1,4 @@
-import urllib.request, urllib.parse
+import urllib.request, urllib.parse, import http.cookiejar
 import re
 import time
 from enum import Enum, auto
@@ -35,6 +35,7 @@ class PlayabilityStatus(Enum):
     MEMBERS_ONLY = auto()
     OFFLINE = auto()
     OK = auto()
+    ON_LIVE = auto()
     UNKNOWN = auto()
     LOGIN_REQUIRED = auto()
 
@@ -112,12 +113,19 @@ def get_pool_ip():
                     return ip
     return None
 
-def urlopen(url, retry=0, source_address="random"):
+def urlopen(url, retry=0, source_address="random", use_cookie=False):
     try:
         if source_address == "random":
             source_address = get_pool_ip()
         if not is_ip(source_address):
             source_address = None
+        if use_cookie:
+            if hasattr(const, "COOKIE") and const.COOKIE and os.path.isfile(const.COOKIE):
+                cj = http.cookiejar.MozillaCookieJar()
+                cj.load(const.COOKIE)
+                cookie_handler = urllib.request.HTTPCookieProcessor(cj)
+            else:
+                use_cookie = False
         if source_address:
             log(f" Using IP: {source_address}")
             schema = "https"
@@ -126,10 +134,15 @@ def urlopen(url, retry=0, source_address="random"):
             elif isinstance(url, urllib.request.Request):
                 schema = urllib.parse.urlsplit(url.full_url).scheme
 
-            handler = (BoundHTTPHandler if schema == "http" else BoundHTTPSHandler)(source_address=(source_address, 0))
-            opener = urllib.request.build_opener(handler)
+            handler = (BoundHTTPHandler if schema == "http" else BoundHTTPSHandler)(source_address = (source_address, 0))
+            if use_cookie:
+                opener = urllib.request.build_opener(handler, cookie_handler)
+            else:
+                opener = urllib.request.build_opener(handler)
             return opener.open(url)
         else:
+            if use_cookie:
+                return urllib.request.build_opener(cookie_handler).open(url)
             return urllib.request.urlopen(url)
     except http.client.IncompleteRead as e:
         if retry < const.HTTP_RETRY:
@@ -154,9 +167,9 @@ def urlopen(url, retry=0, source_address="random"):
         else:
             raise e
 
-def is_live(channel_id):
+def is_live(channel_id, use_cookie=False):
     url = f"https://www.youtube.com/channel/{channel_id}/live"
-    with urlopen(url) as response:
+    with urlopen(url, use_cookie=use_cookie) as response:
         html = response.read().decode()
 
         try:
@@ -166,8 +179,13 @@ def is_live(channel_id):
 
         if "watch?v=" in og_url:
             if 'hlsManifestUrl' not in html:
+                if '"status":"LOGIN_REQUIRED"' in html:
+                    if use_cookie:
+                        return False  # No permission
+                    else:
+                        return is_live(channel_id, use_cookie=True) # Try again with cookie
                 return False # No stream found
-            return og_url
+            return og_url # Stream found
         elif "/channel/" in og_url or "/user/" in og_url:
             return False
         else:
@@ -191,6 +209,8 @@ def get_video_status(video_id):
         elif '"status":"ERROR"' in html:
             return PlayabilityStatus.REMOVED
         elif '"status":"OK"' in html:
+            if 'hlsManifestUrl' in html:
+                return PlayabilityStatus.ON_LIVE
             return PlayabilityStatus.OK
         elif '"status":"LIVE_STREAM_OFFLINE"' in html:
             return PlayabilityStatus.OFFLINE

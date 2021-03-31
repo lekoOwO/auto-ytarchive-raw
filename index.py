@@ -157,6 +157,8 @@ try:
 
                         if status is utils.PlayabilityStatus.OK:
                             continue
+                        if status is utils.PlayabilityStatus.ON_LIVE:
+                            continue
 
                         if status is utils.PlayabilityStatus.OFFLINE:
                             continue

@@ -13,6 +13,9 @@ LOGS_DIR = "logs"
 CHANNELS_JSON = "channels.json"
 FETCHED_JSON = "fetched.json"
 
+# Cookie file for login required streams.
+COOKIE = None
+
 # Use multi-IPs for checking.
 IP_POOL = None
 
