@@ -1,7 +1,7 @@
 import urllib.request
 import urllib.parse
 import re
-from html.parser import HTMLParser
+import html
 import base64
 import datetime
 import json
@@ -26,6 +26,9 @@ PRIORITY = {
     ]
 }
 
+def parse(regex, html):
+    return html.unescape(re.search(regex, html).group(1))
+
 def get_youtube_id(url):
     try:
         return re.search(r'^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*', url).group(1)
@@ -38,13 +41,13 @@ def get_youtube_id(url):
             return result
 
 def get_youtube_video_info(video_id, html):
-    thumbnail_url = re.search(r'<link rel="image_src" href="(.+?)">', html).group(1) if '<link rel="image_src" href="' in html else f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+    thumbnail_url = parse(r'<link rel="image_src" href="(.+?)">', html) if '<link rel="image_src" href="' in html else f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
     return {
-        "title": re.search(r'<meta name="title" content="(.+?)">', html).group(1),
+        "title": parse(r'<meta name="title" content="(.+?)">', html),
         "id": video_id,
-        "channelName": re.search(r'<link itemprop="name" content="(.+?)">', html).group(1),
-        "channelURL": "https://www.youtube.com/channel/" + re.search(r'<meta itemprop="channelId" content="(.+?)">', html).group(1),
-        "description": re.search(r'"description":{"simpleText":"(.+?)"},', html).group(1).replace("\\n", "\n") if '"description":{"simpleText":"' in html else "",
+        "channelName": parse(r'<link itemprop="name" content="(.+?)">', html),
+        "channelURL": "https://www.youtube.com/channel/" + parse(r'<meta itemprop="channelId" content="(.+?)">', html),
+        "description": parse(r'"description":{"simpleText":"(.+?)"},', html).replace("\\n", "\n") if '"description":{"simpleText":"' in html else "",
         "thumbnail": get_image(thumbnail_url),
         "thumbnailUrl": thumbnail_url
     }
