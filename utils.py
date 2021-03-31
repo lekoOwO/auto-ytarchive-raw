@@ -36,6 +36,7 @@ class PlayabilityStatus(Enum):
     OFFLINE = auto()
     OK = auto()
     UNKNOWN = auto()
+    LOGIN_REQUIRED = auto()
 
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
@@ -193,6 +194,8 @@ def get_video_status(video_id):
             return PlayabilityStatus.OK
         elif '"status":"LIVE_STREAM_OFFLINE"' in html:
             return PlayabilityStatus.OFFLINE
+        elif '"status":"LOGIN_REQUIRED"' in html:
+            return PlayabilityStatus.LOGIN_REQUIRED
         else:
             with open(os.path.join(const.LOGS_DIR, f"{video_id}.html"), "w", encoding="utf8") as f:
                 f.write(html)
