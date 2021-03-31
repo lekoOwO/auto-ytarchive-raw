@@ -26,28 +26,28 @@ PRIORITY = {
     ]
 }
 
-def parse(regex, html):
-    return html.unescape(re.search(regex, html).group(1))
+def parse(regex, html_raw):
+    return html.unescape(re.search(regex, html_raw).group(1))
 
 def get_youtube_id(url):
     try:
         return re.search(r'^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*', url).group(1)
     except:
         with utils.urlopen(url) as response:
-            html = response.read().decode()
+            html_raw = response.read().decode()
             regex = r'<meta itemprop="videoId" content="(.+?)">'
-            result = re.search(regex, html).group(1)
+            result = re.search(regex, html_raw).group(1)
 
             return result
 
-def get_youtube_video_info(video_id, html):
-    thumbnail_url = parse(r'<link rel="image_src" href="(.+?)">', html) if '<link rel="image_src" href="' in html else f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+def get_youtube_video_info(video_id, html_raw):
+    thumbnail_url = parse(r'<link rel="image_src" href="(.+?)">', html_raw) if '<link rel="image_src" href="' in html_raw else f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
     return {
-        "title": parse(r'<meta name="title" content="(.+?)">', html),
+        "title": parse(r'<meta name="title" content="(.+?)">', html_raw),
         "id": video_id,
-        "channelName": parse(r'<link itemprop="name" content="(.+?)">', html),
-        "channelURL": "https://www.youtube.com/channel/" + parse(r'<meta itemprop="channelId" content="(.+?)">', html),
-        "description": parse(r'"description":{"simpleText":"(.+?)"},', html).replace("\\n", "\n") if '"description":{"simpleText":"' in html else "",
+        "channelName": parse(r'<link itemprop="name" content="(.+?)">', html_raw),
+        "channelURL": "https://www.youtube.com/channel/" + parse(r'<meta itemprop="channelId" content="(.+?)">', html_raw),
+        "description": parse(r'"description":{"simpleText":"(.+?)"},', html_raw).replace("\\n", "\n") if '"description":{"simpleText":"' in html_raw else "",
         "thumbnail": get_image(thumbnail_url),
         "thumbnailUrl": thumbnail_url
     }
