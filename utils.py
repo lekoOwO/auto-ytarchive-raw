@@ -1,4 +1,4 @@
-import urllib.request, urllib.parse, import http.cookiejar
+import urllib.request, urllib.parse, http.cookiejar
 import re
 import time
 from enum import Enum, auto
