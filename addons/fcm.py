@@ -25,7 +25,7 @@ def onlive(video_data):
     if const.FCM_ICON:
         data["notification"]["icon"] = const.FCM_ICON
 
-    data = json.dumps(data, ensure_ascii=False).encode()
+    data = json.dumps(data).encode()
 
     req = urllib.request.Request(
         url="https://fcm.googleapis.com/fcm/send", method="POST", data=data)
