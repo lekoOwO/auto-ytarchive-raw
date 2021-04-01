@@ -20,6 +20,8 @@ def get_private_check_text(status):
 
 ON_LIVE_MESSAGE = "[{video_id}](https://youtu.be/{video_id}) is live on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
 
+MULTI_MANIFEST_MESSAGE = "[{video_id}](https://youtu.be/{video_id}) has multiple manifest on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
+
 PUSHALERT_TITLE = "🔴 Hololive Live Alert"
 PUSHALERT_MESSAGE = "{channelName} is Live now!"
 

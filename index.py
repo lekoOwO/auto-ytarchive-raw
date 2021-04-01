@@ -206,7 +206,8 @@ try:
                         video_id: {
                             "fregments": {},
                             "skipPrivateCheck": False,
-                            "skipOnliveNotify": False
+                            "skipOnliveNotify": False,
+                            "multiManifestNotify": 1
                         }
                     }
                 
@@ -214,7 +215,8 @@ try:
                     fetched[channel_name][video_id] = {
                         "fregments": {},
                         "skipPrivateCheck": False,
-                        "skipOnliveNotify": False
+                        "skipOnliveNotify": False,
+                        "multiManifestNotify": 1
                     }
 
                 filepath = os.path.join(const.BASE_JSON_DIR, f"{m3u8_id}.json")
@@ -249,6 +251,28 @@ try:
                     "file": filepath,
                     "create_time": time.time()
                 }
+
+                if len(fetched[channel_name][video_id]["fregments"]) > 1:
+                    if "multiManifestNotify" not in fetched[channel_name][video_id]:
+                        fetched[channel_name][video_id]["multiManifestNotify"] = 1
+                    if len(fetched[channel_name][video_id]["fregments"]) > fetched[channel_name][video_id]["multiManifestNotify"]:
+                        fetched[channel_name][video_id]["multiManifestNotify"] = len(fetched[channel_name][video_id]["fregments"])
+
+                        files = [fetched[channel_name][video_id]["fregments"][m3u8_id]["file"] for m3u8_id in fetched[channel_name][video_id]["fregments"]]
+                        message = text.MULTI_MANIFEST_MESSAGE.format(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
+
+                        if const.ENABLED_MODULES["discord"]:
+                            threading.Thread(target=discord.send, args=(const.DISCORD_WEBHOOK_URL, message), kwargs={
+                                "version": const.VERSION,
+                                "files": files if const.DISCORD_SEND_FILES else None
+                            }, daemon=True).start()
+                        if const.ENABLED_MODULES["telegram"]:
+                            if const.TELEGRAM_SEND_FILES:
+                                threading.Thread(target=telegram.send_files, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message, files), daemon=True).start()
+                            else:
+                                threading.Thread(target=telegram.send, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)).start()
+
+                        utils.log(f"[INFO] {message}")
 
                 save()
             else:
