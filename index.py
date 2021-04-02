@@ -10,8 +10,8 @@ import getjson
 import const
 import text
 
-from addons import discord
 from addons import telegram
+from addons import discord
 from addons import pushalert
 from addons import fcm
 
@@ -174,22 +174,12 @@ try:
                                 utils.warn(f" Chat file for {video_id} not found. This shouldn't happen, maybe someone stealed it...?")
 
                         message = text.get_private_check_text(status).format(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
-                                
-                        if const.ENABLED_MODULES["discord"]:
-                            threading.Thread(target=discord.send, args=(const.DISCORD_WEBHOOK_URL, message), kwargs={
-                                "version": const.VERSION,
-                                "files": files if const.DISCORD_SEND_FILES else None
-                            }, daemon=True).start()
-                        if const.ENABLED_MODULES["telegram"]:
-                            if const.TELEGRAM_SEND_FILES:
-                                threading.Thread(target=telegram.send_files, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message, files), daemon=True).start()
-                            else:
-                                threading.Thread(target=telegram.send, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)).start()
-
+                        
+                        utils.notify(message, files)
                         fetched[channel_name][video_id]["skipPrivateCheck"] = True
                         save()
                             
-                        utils.log(f"[INFO] {message}")
+                        utils.log(f" {message}")
 
             is_live = utils.is_live(channel_id)
             if is_live:
@@ -261,18 +251,9 @@ try:
                         files = [fetched[channel_name][video_id]["fregments"][m3u8_id]["file"] for m3u8_id in fetched[channel_name][video_id]["fregments"]]
                         message = text.MULTI_MANIFEST_MESSAGE.format(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
 
-                        if const.ENABLED_MODULES["discord"]:
-                            threading.Thread(target=discord.send, args=(const.DISCORD_WEBHOOK_URL, message), kwargs={
-                                "version": const.VERSION,
-                                "files": files if const.DISCORD_SEND_FILES else None
-                            }, daemon=True).start()
-                        if const.ENABLED_MODULES["telegram"]:
-                            if const.TELEGRAM_SEND_FILES:
-                                threading.Thread(target=telegram.send_files, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message, files), daemon=True).start()
-                            else:
-                                threading.Thread(target=telegram.send, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)).start()
+                        utils.notify(message, files)
 
-                        utils.log(f"[INFO] {message}")
+                        utils.log(f" {message}")
 
                 save()
             else:

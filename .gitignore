@@ -8,3 +8,4 @@ callback/callback.py
 callback/chat.py
 const.py
 .vscode/
+channels.json

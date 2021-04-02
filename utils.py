@@ -1,4 +1,6 @@
-import urllib.request, urllib.parse, http.cookiejar
+import urllib.request
+import urllib.parse
+import http.cookiejar
 import re
 import time
 from enum import Enum, auto
@@ -10,7 +12,9 @@ import http.client
 import ipaddress
 import random
 
-from threading import Timer
+import threading
+from addons import discord
+from addons import telegram
 
 import const
 
@@ -25,8 +29,10 @@ elif const.CHAT_COMPRESS == "zstd":
 def log(msg):
     print(f"[INFO]{msg}")
 
+
 def warn(msg):
     print(f"[WARN]{msg}")
+
 
 class PlayabilityStatus(Enum):
     PRIVATED = auto()
@@ -39,13 +45,14 @@ class PlayabilityStatus(Enum):
     UNKNOWN = auto()
     LOGIN_REQUIRED = auto()
 
+
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
-        self._timer     = None
-        self.interval   = interval
-        self.function   = function
-        self.args       = args
-        self.kwargs     = kwargs
+        self._timer = None
+        self.interval = interval
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
         self.is_running = False
         self.start()
 
@@ -56,13 +63,14 @@ class RepeatedTimer(object):
 
     def start(self):
         if not self.is_running:
-            self._timer = Timer(self.interval, self._run)
+            self._timer = threading.Timer(self.interval, self._run)
             self._timer.start()
             self.is_running = True
 
     def stop(self):
         self._timer.cancel()
         self.is_running = False
+
 
 class BoundHTTPHandler(urllib.request.HTTPHandler):
     def __init__(self, *args, source_address=None, **kwargs):
@@ -73,6 +81,7 @@ class BoundHTTPHandler(urllib.request.HTTPHandler):
     def http_open(self, req):
         return self.do_open(self.http_class, req)
 
+
 class BoundHTTPSHandler(urllib.request.HTTPSHandler):
     def __init__(self, *args, source_address=None, **kwargs):
         urllib.request.HTTPSHandler.__init__(self, *args, **kwargs)
@@ -82,6 +91,7 @@ class BoundHTTPSHandler(urllib.request.HTTPSHandler):
     def https_open(self, req):
         return self.do_open(self.https_class, req,
                 context=self._context, check_hostname=self._check_hostname)
+
 
 def get_random_line(filepath: str) -> str:
     file_size = os.path.getsize(filepath)
@@ -97,6 +107,7 @@ def get_random_line(filepath: str) -> str:
                 return line.decode()
             # else: line is empty -> EOF -> try another position in next iteration
 
+
 def is_ip(ip):
     try:
         ip = ipaddress.ip_address(ip)
@@ -104,14 +115,16 @@ def is_ip(ip):
     except ValueError:
         return False
 
+
 def get_pool_ip():
     if const.IP_POOL:
         if os.path.isfile(const.IP_POOL):
-            for _ in range(3): 
+            for _ in range(3):
                 ip = get_random_line(const.IP_POOL).rstrip().lstrip()
                 if is_ip(ip):
                     return ip
     return None
+
 
 def urlopen(url, retry=0, source_address="random", use_cookie=False):
     try:
@@ -134,7 +147,8 @@ def urlopen(url, retry=0, source_address="random", use_cookie=False):
             elif isinstance(url, urllib.request.Request):
                 schema = urllib.parse.urlsplit(url.full_url).scheme
 
-            handler = (BoundHTTPHandler if schema == "http" else BoundHTTPSHandler)(source_address = (source_address, 0))
+            handler = (BoundHTTPHandler if schema == "http" else BoundHTTPSHandler)(
+                source_address=(source_address, 0))
             if use_cookie:
                 opener = urllib.request.build_opener(handler, cookie_handler)
             else:
@@ -146,14 +160,16 @@ def urlopen(url, retry=0, source_address="random", use_cookie=False):
             return urllib.request.urlopen(url)
     except http.client.IncompleteRead as e:
         if retry < const.HTTP_RETRY:
-            warn(f" Get IncompleteRead Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+            warn(
+                f" Get IncompleteRead Error. Trying {retry+1}/{const.HTTP_RETRY}...")
             return urlopen(url, retry+1, get_pool_ip() if source_address else None)
         else:
             raise e
     except urllib.error.HTTPError as e:
         if e.code == 503:
             if retry < const.HTTP_RETRY:
-                warn(f" Get {e.code} Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+                warn(
+                    f" Get {e.code} Error. Trying {retry+1}/{const.HTTP_RETRY}...")
                 time.sleep(1)
                 return urlopen(url, retry+1, get_pool_ip() if source_address else None)
             else:
@@ -162,10 +178,12 @@ def urlopen(url, retry=0, source_address="random", use_cookie=False):
             raise e
     except urllib.error.URLError as e:
         if retry < const.HTTP_RETRY:
-            warn(f" Get urllib.error.URLError Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+            warn(
+                f" Get urllib.error.URLError Error. Trying {retry+1}/{const.HTTP_RETRY}...")
             return urlopen(url, retry+1, get_pool_ip() if source_address else None)
         else:
             raise e
+
 
 def is_live(channel_id, use_cookie=False):
     url = f"https://www.youtube.com/channel/{channel_id}/live"
@@ -173,9 +191,11 @@ def is_live(channel_id, use_cookie=False):
         html = response.read().decode()
 
         try:
-            og_url = re.search(r'<meta property="og:url" content="(.+?)">', html).group(1)
+            og_url = re.search(
+                r'<meta property="og:url" content="(.+?)">', html).group(1)
         except AttributeError:
-            og_url = re.search(r'<link rel="canonical" href="(.+?)">', html).group(1)
+            og_url = re.search(
+                r'<link rel="canonical" href="(.+?)">', html).group(1)
 
         if "watch?v=" in og_url:
             if 'hlsManifestUrl' not in html:
@@ -183,14 +203,17 @@ def is_live(channel_id, use_cookie=False):
                     if use_cookie:
                         return False  # No permission
                     else:
-                        return is_live(channel_id, use_cookie=True) # Try again with cookie
-                return False # No stream found
-            return og_url # Stream found
+                        # Try again with cookie
+                        return is_live(channel_id, use_cookie=True)
+                return False  # No stream found
+            return og_url  # Stream found
         elif "/channel/" in og_url or "/user/" in og_url:
             return False
         else:
-            warn(f" Something weird happened on checking Live for {channel_id}...")
+            warn(
+                f" Something weird happened on checking Live for {channel_id}...")
             return False
+
 
 def get_video_status(video_id):
     url = f"https://www.youtube.com/watch?v={video_id}"
@@ -198,7 +221,7 @@ def get_video_status(video_id):
     req.add_header('Accept-Language', 'en-US,en;q=0.5')
 
     with urlopen(req) as response:
-        html = response.read().decode() 
+        html = response.read().decode()
 
         if '"offerId":"sponsors_only_video"' in html:
             return PlayabilityStatus.MEMBERS_ONLY
@@ -221,6 +244,7 @@ def get_video_status(video_id):
                 f.write(html)
             return PlayabilityStatus.UNKNOWN
 
+
 if const.CHAT_COMPRESS == "brotli":
     def compress_file(file):
         with open(file, encoding="utf8") as f:
@@ -238,3 +262,16 @@ elif const.CHAT_COMPRESS == "zstd":
         with open(file, "rb") as ifh, tempfile.NamedTemporaryFile(prefix=(os.path.basename(file)+"."), suffix=".zst", delete=False) as ofh:
             cctx.copy_stream(ifh, ofh)
             return ofh.name
+
+
+def notify(message, files=None):
+    if const.ENABLED_MODULES["discord"]:
+        threading.Thread(target=discord.send, args=(const.DISCORD_WEBHOOK_URL, message), kwargs={
+            "version": const.VERSION,
+            "files": files if const.DISCORD_SEND_FILES else None
+        }, daemon=True).start()
+    if const.ENABLED_MODULES["telegram"]:
+        if const.TELEGRAM_SEND_FILES:
+            threading.Thread(target=telegram.send_files, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message, files), daemon=True).start()
+        else:
+            threading.Thread(target=telegram.send, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)).start()
