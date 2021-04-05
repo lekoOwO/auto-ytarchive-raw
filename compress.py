@@ -1,4 +1,5 @@
 import const
+import os
 
 if const.CHAT_COMPRESS == "brotli":
     import brotli
