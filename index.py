@@ -119,7 +119,9 @@ def clear_expiry():
     save()
 
 try:
+    clear_expiry()
     expiry_task = utils.RepeatedTimer(const.TIME_BETWEEN_CLEAR, clear_expiry)
+    expiry_task.start()
     if const.CHAT_DIR:
         def get_channel_name_by_video_id(video_id):
             for channel_name in fetched:
