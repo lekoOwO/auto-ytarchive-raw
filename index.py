@@ -139,6 +139,7 @@ try:
                     utils.log(f" Chat instance {video_id} has been cleared.")
             
         chat_expiry_task = utils.RepeatedTimer(const.CHAT_TASK_CLEAR_INTERVAL, clear_chat)
+        chat_expiry_task.start()
 
     while True:
         for channel_name, channel_id in CHANNELS.items():
