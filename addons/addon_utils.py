@@ -4,8 +4,6 @@ import os
 import mimetypes
 
 import const
-import utils
-
 
 def read_file_as_content(filename):
     # print filename
@@ -55,7 +53,3 @@ def encode_multipart_formdata(fields):
     body = CRLF.join(L)
     content_type = f'multipart/form-data; boundary={BOUNDARY}'
     return content_type, body
-
-if hasattr(utils, "compress_file"):
-    def compress_file(*args, **kwargs):
-        return utils.compress_file(*args, **kwargs)

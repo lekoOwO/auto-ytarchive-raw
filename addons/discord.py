@@ -2,6 +2,7 @@ import json
 import urllib.request
 
 import addons.addon_utils as utils
+import compress
 import const
 
 if const.CHAT_COMPRESS:
@@ -21,7 +22,7 @@ def send(webhook_url, message, files=None, version="1.0"):
     if files:
         for i in range(len(files)):
             if const.CHAT_COMPRESS and pathlib.Path(files[i]).suffix == ".chat":
-                filename = utils.compress_file(files[i])
+                filename = compress.compress_file(files[i])
                 compressed.append(filename)
                 payload.append((f"file{i}", f"f'{filename}'"))
             else:

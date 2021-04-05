@@ -4,6 +4,7 @@ import tempfile
 import os
 
 import addons.addon_utils as utils
+import compress
 import const
 
 if const.CHAT_COMPRESS:
@@ -33,7 +34,7 @@ def send_files(token, chat_id, message, files):
     ]
 
     if const.CHAT_COMPRESS and pathlib.Path(files[0]).suffix == ".chat":
-        compressed = utils.compress_file(files[0])
+        compressed = compress.compress_file(files[0])
         payload.append(("document", f"f'{compressed}'"))
     else:
         payload.append(("document", f"f'{files[0]}'"))
@@ -65,7 +66,7 @@ def send_multi_files(token, chat_id, message, files):
 
     for i in range(len(files)):
         if const.CHAT_COMPRESS and pathlib.Path(files[i]).suffix == ".chat":
-            filename = utils.compress_file(files[i])
+            filename = compress.compress_file(files[i])
             compressed.append(filename)
             payload.append((f"file{i}", f"f'{filename}'"))
         else:
