@@ -57,4 +57,5 @@ def encode_multipart_formdata(fields):
     return content_type, body
 
 if hasattr(utils, "compress_file"):
-    compress_file = utils.compress_file
+    def compress_file(*args, **kwargs):
+        return utils.compress_file(*args, **kwargs)
