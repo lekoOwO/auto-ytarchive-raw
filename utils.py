@@ -112,7 +112,7 @@ def is_ip(ip):
 def get_pool_ip():
     if const.IP_POOL:
         if os.path.isfile(const.IP_POOL):
-            for _ in range(3):
+            for _ in range(3): # Retry for 3 times.
                 ip = get_random_line(const.IP_POOL).rstrip().lstrip()
                 if is_ip(ip):
                     return ip
@@ -143,26 +143,23 @@ def urlopen(url, retry=0, source_address="random", use_cookie=False):
             elif isinstance(url, urllib.request.Request):
                 scheme = urllib.parse.urlsplit(url.full_url).scheme
 
-            handler = (BoundHTTPHandler if scheme == "http" else BoundHTTPSHandler)(
-                source_address = (source_address, 0))
+            handler = (BoundHTTPHandler if scheme == "http" else BoundHTTPSHandler)(source_address=(source_address, 0))
             handlers.append(handler)
         
-        if len(handlers):
+        if handlers:
             return urllib.request.build_opener(*handlers).open(url)
         else:
             return urllib.request.urlopen(url)
     except http.client.IncompleteRead as e:
         if retry < const.HTTP_RETRY:
-            warn(
-                f" Get IncompleteRead Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+            warn(f" Get IncompleteRead Error. Trying {retry+1}/{const.HTTP_RETRY}...")
             return urlopen(url, retry+1, get_pool_ip() if source_address else None, use_cookie)
         else:
             raise e
     except urllib.error.HTTPError as e:
         if e.code == 503:
             if retry < const.HTTP_RETRY:
-                warn(
-                    f" Get {e.code} Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+                warn(f" Get {e.code} Error. Trying {retry+1}/{const.HTTP_RETRY}...")
                 time.sleep(1)
                 return urlopen(url, retry+1, get_pool_ip() if source_address else None, use_cookie)
             else:
@@ -171,8 +168,7 @@ def urlopen(url, retry=0, source_address="random", use_cookie=False):
             raise e
     except urllib.error.URLError as e:
         if retry < const.HTTP_RETRY:
-            warn(
-                f" Get urllib.error.URLError Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+            warn(f" Get urllib.error.URLError Error. Trying {retry+1}/{const.HTTP_RETRY}...")
             return urlopen(url, retry+1, get_pool_ip() if source_address else None, use_cookie)
         else:
             raise e
@@ -248,7 +244,7 @@ def notify(message, files=None):
         if const.TELEGRAM_SEND_FILES:
             threading.Thread(target=telegram.send_files, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message, files), daemon=True).start()
         else:
-            threading.Thread(target=telegram.send, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)).start()
+            threading.Thread(target=telegram.send, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message), daemon=True).start()
 
 def get_avatar(url):
     regex = r'"avatar":{"thumbnails":(\[{[^\]]+?\])}'
