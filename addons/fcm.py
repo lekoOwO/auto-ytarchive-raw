@@ -17,7 +17,7 @@ def onlive(video_data):
         "notification": {
             'title': text.FCM_TITLE.format(**video_data["metadata"]),
             "body": text.FCM_MESSAGE.format(**video_data["metadata"]),
-            "click_action": f"https://youtu.be/{video_data['metadata']['id']}",
+            "click_action": f"https://www.youtube.com/watch?v={video_data['metadata']['id']}",
             "image": image
         }
     }

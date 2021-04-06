@@ -8,7 +8,7 @@ def onlive(video_data):
     data = {
         'title': text.PUSHALERT_TITLE.format(**video_data["metadata"]),
         "message": text.PUSHALERT_MESSAGE.format(**video_data["metadata"]),
-        "url": f"https://youtu.be/{video_data['metadata']['id']}"
+        "url": f"https://www.youtube.com/watch?v={video_data['metadata']['id']}"
     }
     if const.PUSHALERT_ICON:
         data["icon"] = const.PUSHALERT_ICON
