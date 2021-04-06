@@ -5,6 +5,7 @@ import re
 import time
 from enum import Enum, auto
 import os
+import json
 
 import functools
 import http.client
@@ -248,3 +249,15 @@ def notify(message, files=None):
             threading.Thread(target=telegram.send_files, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message, files), daemon=True).start()
         else:
             threading.Thread(target=telegram.send, args=(const.TELEGRAM_BOT_TOKEN, const.TELEGRAM_CHAT_ID, message)).start()
+
+def get_avatar(url):
+    regex = r'"avatar":{"thumbnails":(\[{[^\]]+?\])}'
+    with urlopen(url) as resp:
+        html = resp.read().decode()
+        result = re.findall(regex, html)
+
+    result = [json.loads(x) for x in result]
+    result = [item for sublist in result for item in sublist]
+    result = max(result, key=lambda x: x['width'])
+    result = result['url']
+    return result

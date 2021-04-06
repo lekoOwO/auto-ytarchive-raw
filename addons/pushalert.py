@@ -12,6 +12,8 @@ def onlive(video_data):
     }
     if const.PUSHALERT_ICON:
         data["icon"] = const.PUSHALERT_ICON
+    else:
+        data["icon"] = utils.get_avatar(video_data['metadata']["channelURL"])
 
     data = urllib.parse.urlencode(data).encode()
 

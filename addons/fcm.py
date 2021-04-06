@@ -24,6 +24,9 @@ def onlive(video_data):
 
     if const.FCM_ICON:
         data["notification"]["icon"] = const.FCM_ICON
+    else:
+        data["notification"]["icon"] = utils.get_avatar(video_data['metadata']["channelURL"])
+
 
     data = json.dumps(data).encode()
 
