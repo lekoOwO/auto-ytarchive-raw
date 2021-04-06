@@ -121,41 +121,41 @@ def get_pool_ip():
 
 def urlopen(url, retry=0, source_address="random", use_cookie=False):
     try:
+        handlers = []
+
         if source_address == "random":
             source_address = get_pool_ip()
         if not is_ip(source_address):
             source_address = None
+        
         if use_cookie:
             if hasattr(const, "COOKIE") and const.COOKIE and os.path.isfile(const.COOKIE):
                 cj = http.cookiejar.MozillaCookieJar()
                 cj.load(const.COOKIE)
                 cookie_handler = urllib.request.HTTPCookieProcessor(cj)
-            else:
-                use_cookie = False
+                handlers.append(cookie_handler)
+            
         if source_address:
             log(f" Using IP: {source_address}")
-            schema = "https"
+            scheme = "https"
             if type(url) == str:
-                schema = urllib.parse.urlsplit(url).scheme
+                scheme = urllib.parse.urlsplit(url).scheme
             elif isinstance(url, urllib.request.Request):
-                schema = urllib.parse.urlsplit(url.full_url).scheme
+                scheme = urllib.parse.urlsplit(url.full_url).scheme
 
-            handler = (BoundHTTPHandler if schema == "http" else BoundHTTPSHandler)(
-                source_address=(source_address, 0))
-            if use_cookie:
-                opener = urllib.request.build_opener(handler, cookie_handler)
-            else:
-                opener = urllib.request.build_opener(handler)
-            return opener.open(url)
+            handler = (BoundHTTPHandler if scheme == "http" else BoundHTTPSHandler)(
+                source_address = (source_address, 0))
+            handlers.append(handler)
+        
+        if len(handlers):
+            return urllib.request.build_opener(*handlers).open(url)
         else:
-            if use_cookie:
-                return urllib.request.build_opener(cookie_handler).open(url)
             return urllib.request.urlopen(url)
     except http.client.IncompleteRead as e:
         if retry < const.HTTP_RETRY:
             warn(
                 f" Get IncompleteRead Error. Trying {retry+1}/{const.HTTP_RETRY}...")
-            return urlopen(url, retry+1, get_pool_ip() if source_address else None)
+            return urlopen(url, retry+1, get_pool_ip() if source_address else None, use_cookie)
         else:
             raise e
     except urllib.error.HTTPError as e:
@@ -164,7 +164,7 @@ def urlopen(url, retry=0, source_address="random", use_cookie=False):
                 warn(
                     f" Get {e.code} Error. Trying {retry+1}/{const.HTTP_RETRY}...")
                 time.sleep(1)
-                return urlopen(url, retry+1, get_pool_ip() if source_address else None)
+                return urlopen(url, retry+1, get_pool_ip() if source_address else None, use_cookie)
             else:
                 raise e
         else:
@@ -173,7 +173,7 @@ def urlopen(url, retry=0, source_address="random", use_cookie=False):
         if retry < const.HTTP_RETRY:
             warn(
                 f" Get urllib.error.URLError Error. Trying {retry+1}/{const.HTTP_RETRY}...")
-            return urlopen(url, retry+1, get_pool_ip() if source_address else None)
+            return urlopen(url, retry+1, get_pool_ip() if source_address else None, use_cookie)
         else:
             raise e
 
