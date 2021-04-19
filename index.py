@@ -174,7 +174,7 @@ try:
                             else:
                                 utils.warn(f" Chat file for {video_id} not found. This shouldn't happen, maybe someone stealed it...?")
 
-                        message = text.get_private_check_text(status).format(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
+                        message = text.get_private_check_text(status, video_id).format(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
                         
                         utils.notify(message, files)
                         fetched[channel_name][video_id]["skipPrivateCheck"] = True

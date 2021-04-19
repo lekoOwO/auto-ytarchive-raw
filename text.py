@@ -1,6 +1,12 @@
 import utils
 
-def get_private_check_text(status):
+def get_private_check_text(status, video_id=None):
+    # import getjson
+    # with utils.build_req(video_id) as res:
+    #     html = res.read().decode()
+    # info = get_youtube_video_info(html)
+    # # Do some if-else using info object
+
     if status is utils.PlayabilityStatus.PRIVATED:
         return "[{video_id}](https://youtu.be/{video_id}) is privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
     elif status is utils.PlayabilityStatus.REMOVED:

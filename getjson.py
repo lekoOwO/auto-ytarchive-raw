@@ -60,16 +60,20 @@ def get_image(url):
 
         return f"data:image/jpeg;base64,{b64}"
 
-def get_json(video_url, file=None):
-    video_id = get_youtube_id(video_url)
-
+def build_req(video_id):
+    video_url = f"https://www.youtube.com/watch?v={video_id}"
     info_req = urllib.request.Request(
         video_url, 
         headers={
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
         }
     )
-    with utils.urlopen(info_req) as response:
+    return utils.urlopen(info_req)
+
+def get_json(video_url, file=None):
+    video_id = get_youtube_id(video_url)
+
+    with build_req(video_id) as response:
         data = response.read().decode()
 
         match = re.findall(r'"itag":(\d+),"url":"([^"]+)"', data)
