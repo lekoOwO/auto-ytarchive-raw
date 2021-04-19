@@ -222,7 +222,7 @@ try:
                         fetched[channel_name][video_id]["chat"] = chat_file
 
                 if not fetched[channel_name][video_id]["skipOnliveNotify"]:
-                    onlive_message = text.ON_LIVE_MESSAGE.format(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
+                    onlive_message = text.get_onlive_message(video_id=video_id).format(video_id=video_id, channel_name=channel_name, channel_id=channel_id)
                     if const.ENABLED_MODULES_ONLIVE["discord"]:
                         discord.send(const.DISCORD_WEBHOOK_URL_ONLIVE, onlive_message, version=const.VERSION)
                         fetched[channel_name][video_id]["skipOnliveNotify"] = True

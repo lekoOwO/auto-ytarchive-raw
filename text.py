@@ -24,7 +24,8 @@ def get_private_check_text(status, video_id=None):
     else:
         return "[{video_id}](https://youtu.be/{video_id}) occurred sth very weird on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
 
-ON_LIVE_MESSAGE = "[{video_id}](https://youtu.be/{video_id}) is live on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
+def get_onlive_message(video_id):
+    return "[{video_id}](https://youtu.be/{video_id}) is live on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
 
 MULTI_MANIFEST_MESSAGE = "[{video_id}](https://youtu.be/{video_id}) has multiple manifest on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
 
