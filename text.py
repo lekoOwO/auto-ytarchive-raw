@@ -2,9 +2,9 @@ import utils
 
 def get_private_check_text(status, video_id=None):
     # import getjson
-    # with utils.build_req(video_id) as res:
+    # with getjson.build_req(video_id) as res:
     #     html = res.read().decode()
-    # info = getjson.get_youtube_video_info(html)
+    # info = getjson.get_youtube_video_info(video_id, html)
     # # Do some if-else using info object
 
     if status is utils.PlayabilityStatus.PRIVATED:
