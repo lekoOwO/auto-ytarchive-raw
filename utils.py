@@ -183,8 +183,11 @@ def is_live(channel_id, use_cookie=False):
             og_url = re.search(
                 r'<meta property="og:url" content="(.+?)">', html).group(1)
         except AttributeError:
-            og_url = re.search(
-                r'<link rel="canonical" href="(.+?)">', html).group(1)
+            try:
+                og_url = re.search(
+                    r'<link rel="canonical" href="(.+?)">', html).group(1)
+            except:
+                return is_live(channel_id, use_cookie=use_cookie) # Try again, sth weird happened
 
         if "watch?v=" in og_url:
             if 'hlsManifestUrl' not in html:
