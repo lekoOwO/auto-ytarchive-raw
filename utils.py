@@ -206,35 +206,46 @@ def is_live(channel_id, use_cookie=False):
                 f" Something weird happened on checking Live for {channel_id}...")
             return False
 
+# 2021.5.7 Youtube chokes for PlayabilityStatus.REMOVED
+# if PlayabilityStatus.REMOVED, we now check 3 times for accuracy.
 
 def get_video_status(video_id):
-    url = f"https://www.youtube.com/watch?v={video_id}"
-    req = urllib.request.Request(url)
-    req.add_header('Accept-Language', 'en-US,en;q=0.5')
+    def _get_video_status(video_id):
+        url = f"https://www.youtube.com/watch?v={video_id}"
+        req = urllib.request.Request(url)
+        req.add_header('Accept-Language', 'en-US,en;q=0.5')
 
-    with urlopen(req) as response:
-        html = response.read().decode()
+        with urlopen(req) as response:
+            html = response.read().decode()
 
-        if '"offerId":"sponsors_only_video"' in html:
-            return PlayabilityStatus.MEMBERS_ONLY
-        elif '"status":"UNPLAYABLE"' in html:
-            return PlayabilityStatus.COPYRIGHTED
-        elif '"status":"LOGIN_REQUIRED"' in html:
-            return PlayabilityStatus.PRIVATED
-        elif '"status":"ERROR"' in html:
-            return PlayabilityStatus.REMOVED
-        elif '"status":"OK"' in html:
-            if 'hlsManifestUrl' in html:
-                return PlayabilityStatus.ON_LIVE
-            return PlayabilityStatus.OK
-        elif '"status":"LIVE_STREAM_OFFLINE"' in html:
-            return PlayabilityStatus.OFFLINE
-        elif '"status":"LOGIN_REQUIRED"' in html:
-            return PlayabilityStatus.LOGIN_REQUIRED
-        else:
-            with open(os.path.join(const.LOGS_DIR, f"{video_id}.html"), "w", encoding="utf8") as f:
-                f.write(html)
-            return PlayabilityStatus.UNKNOWN
+            if '"offerId":"sponsors_only_video"' in html:
+                return PlayabilityStatus.MEMBERS_ONLY
+            elif '"status":"UNPLAYABLE"' in html:
+                return PlayabilityStatus.COPYRIGHTED
+            elif '"status":"LOGIN_REQUIRED"' in html:
+                return PlayabilityStatus.PRIVATED
+            elif '"status":"ERROR"' in html:
+                return PlayabilityStatus.REMOVED
+            elif '"status":"OK"' in html:
+                if 'hlsManifestUrl' in html:
+                    return PlayabilityStatus.ON_LIVE
+                return PlayabilityStatus.OK
+            elif '"status":"LIVE_STREAM_OFFLINE"' in html:
+                return PlayabilityStatus.OFFLINE
+            elif '"status":"LOGIN_REQUIRED"' in html:
+                return PlayabilityStatus.LOGIN_REQUIRED
+            else:
+                with open(os.path.join(const.LOGS_DIR, f"{video_id}.html"), "w", encoding="utf8") as f:
+                    f.write(html)
+                return PlayabilityStatus.UNKNOWN
+    
+    status = _get_video_status(video_id)
+    if status is PlayabilityStatus.REMOVED:
+        for _ in range(3):
+            tmp = _get_video_status(video_id)
+            if tmp is not PlayabilityStatus.REMOVED:
+                return tmp
+    return status
 
 
 def notify(message, files=None):
