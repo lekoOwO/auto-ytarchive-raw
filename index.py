@@ -131,13 +131,17 @@ try:
         def clear_chat():
             utils.log(f" Running chat instance clearing task.")
             global chats
+            to_del = []
             for video_id in chats:
                 if chats[video_id].is_finished():
                     if const.CHAT_CALLBACK_AFTER_EXPIRY:
                         channel_name = get_channel_name_by_video_id(video_id)
                         chat_callback.callback(chats[video_id], channel_name=channel_name, video_id=video_id)
-                    chats.pop(video_id)
-                    utils.log(f" Chat instance {video_id} has been cleared.")
+                    to_del.append(video_id)
+                    utils.log(f" Chat instance {video_id} has been queued to be cleared.")
+            for video_id in to_del:
+                chats.pop(video_id)
+                utils.log(f" Chat instance {video_id} has been cleared.")
             
         chat_expiry_task = utils.RepeatedTimer(const.CHAT_TASK_CLEAR_INTERVAL, clear_chat)
 
