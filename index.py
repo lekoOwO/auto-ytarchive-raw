@@ -56,18 +56,15 @@ with open(const.CHANNELS_JSON, encoding="utf8") as f:
 # }
 
 global save_lock
-save_lock = False
+save_lock = threading.Lock()
 def save():
     global save_lock
-    while save_lock:
-        time.sleep(0.1)
-
-    save_lock = True
+    save_lock.acquire()
 
     with open(const.FETCHED_JSON, "w", encoding="utf8") as f:
         json.dump(fetched, f, indent=4, ensure_ascii=False)
     
-    save_lock = False
+    save_lock.release()
 
 if os.path.isfile(const.FETCHED_JSON):
     with open(const.FETCHED_JSON, encoding="utf8") as f:
