@@ -69,7 +69,8 @@ class BoundHTTPHandler(urllib.request.HTTPHandler):
     def __init__(self, *args, source_address=None, **kwargs):
         urllib.request.HTTPHandler.__init__(self, *args, **kwargs)
         self.http_class = functools.partial(http.client.HTTPConnection,
-                source_address=source_address)
+                source_address=source_address,
+                timeout=5)
 
     def http_open(self, req):
         return self.do_open(self.http_class, req)
@@ -79,7 +80,8 @@ class BoundHTTPSHandler(urllib.request.HTTPSHandler):
     def __init__(self, *args, source_address=None, **kwargs):
         urllib.request.HTTPSHandler.__init__(self, *args, **kwargs)
         self.https_class = functools.partial(http.client.HTTPSConnection,
-                source_address=source_address)
+                source_address=source_address,
+                timeout=5)
 
     def https_open(self, req):
         return self.do_open(self.https_class, req,
