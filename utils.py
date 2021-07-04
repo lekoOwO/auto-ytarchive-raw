@@ -19,6 +19,9 @@ from addons import telegram
 
 import const
 
+import socket
+socket.setdefaulttimeout(5)
+
 def log(msg):
     print(f"[INFO]{msg}")
 
