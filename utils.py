@@ -155,9 +155,9 @@ def urlopen(url, retry=0, source_address="random", use_cookie=False):
             return urllib.request.build_opener(*handlers).open(url)
         else:
             return urllib.request.urlopen(url)
-    except http.client.IncompleteRead as e:
+    except (http.client.IncompleteRead, socket.timeout) as e:
         if retry < const.HTTP_RETRY:
-            warn(f" Get IncompleteRead Error. Trying {retry+1}/{const.HTTP_RETRY}...")
+            warn(f" Get IncompleteRead/Timeout Error. Trying {retry+1}/{const.HTTP_RETRY}...")
             return urlopen(url, retry+1, get_pool_ip() if source_address else None, use_cookie)
         else:
             raise e
