@@ -247,7 +247,7 @@ try:
                 if len(fetched[channel_name][video_id]["fregments"]) > 1:
                     if "multiManifestNotify" not in fetched[channel_name][video_id]:
                         fetched[channel_name][video_id]["multiManifestNotify"] = 1
-                    if len(fetched[channel_name][video_id]["fregments"]) > fetched[channel_name][video_id]["multiManifestNotify"]:
+                    if len(fetched[channel_name][video_id]["fregments"]) > fetched[channel_name][video_id]["multiManifestNotify"] and text.MULTI_MANIFEST_MESSAGE:
                         fetched[channel_name][video_id]["multiManifestNotify"] = len(fetched[channel_name][video_id]["fregments"])
 
                         files = [fetched[channel_name][video_id]["fregments"][m3u8_id]["file"] for m3u8_id in fetched[channel_name][video_id]["fregments"]]
