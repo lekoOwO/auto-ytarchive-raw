@@ -179,7 +179,7 @@ def urlopen(url, retry=0, source_address="random", use_cookie=False):
             raise e
 
 
-def is_live(channel_id, use_cookie=False):
+def is_live(channel_id, use_cookie=False, retry=0):
     url = f"https://www.youtube.com/channel/{channel_id}/live"
     with urlopen(url, use_cookie=use_cookie) as response:
         html = response.read().decode()
@@ -192,7 +192,10 @@ def is_live(channel_id, use_cookie=False):
                 og_url = re.search(
                     r'<link rel="canonical" href="(.+?)">', html).group(1)
             except:
-                return is_live(channel_id, use_cookie=use_cookie) # Try again, sth weird happened
+                if retry < const.HTTP_RETRY:
+                    return is_live(channel_id, use_cookie=use_cookie, retry=retry + 1) # Try again, sth weird happened
+                else:
+                    return False
 
         if "watch?v=" in og_url:
             if 'hlsManifestUrl' not in html:
@@ -201,7 +204,7 @@ def is_live(channel_id, use_cookie=False):
                         return False  # No permission
                     else:
                         # Try again with cookie
-                        return is_live(channel_id, use_cookie=True)
+                        return is_live(channel_id, use_cookie=True, retry=retry)
                 return False  # No stream found
             return og_url  # Stream found
         elif "/channel/" in og_url or "/user/" in og_url:
