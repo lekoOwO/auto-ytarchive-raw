@@ -13,10 +13,10 @@ LOGS_DIR = "logs"
 CHANNELS_JSON = "channels.json"
 FETCHED_JSON = "fetched.json"
 
-# Cookie file for login required streams.
+# Cookie file for login required streams. You can get your cookie with FF or Chrome extensions like "cookies.txt" (Just check https://addons.mozilla.org/ or https://chrome.google.com/webstore/)
 COOKIE = None
 
-# Use multi-IPs for checking.
+# Use multi-IPs for checking. One IP per line. Also make sure that each IP is set as individual address on your interface, IP-Ranges dont work.
 IP_POOL = None
 
 # Send to discord on video privated
@@ -28,6 +28,7 @@ ENABLED_MODULES = {
     "telegram": False
 }
 
+#If you dont know how to create a Discord webhook read here: https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks
 DISCORD_WEBHOOK_URL = None
 DISCORD_SEND_FILES = False
 
