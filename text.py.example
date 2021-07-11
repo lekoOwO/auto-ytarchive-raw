@@ -7,8 +7,8 @@ def get_private_check_text(status, video_id=None):
     # info = getjson.get_youtube_video_info(video_id, html)
     # # Do some if-else using info object
 
-    #Change the Text in return "" to customize the Messages in Discord/Push. 
-    #For pinging Discord roles right click the group mention, Copy ID and then add them like this: <@&ROLEIDHERE>
+    # Change the Text in return "" to customize the Messages in Discord/Push. 
+    # For pinging Discord roles right click the group mention, Copy ID and then add them like this: <@&ROLEIDHERE>
     if status is utils.PlayabilityStatus.PRIVATED:
         return "[{video_id}](https://youtu.be/{video_id}) is privated on [{channel_name}](https://www.youtube.com/channel/{channel_id})."
     elif status is utils.PlayabilityStatus.REMOVED:
@@ -28,7 +28,7 @@ def get_private_check_text(status, video_id=None):
 
 def get_onlive_message(video_id):
     return "[{video_id}](https://youtu.be/{video_id}) is live on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
-
+# If you leave this empty it will not posts the multiple manifest messages
 MULTI_MANIFEST_MESSAGE = "[{video_id}](https://youtu.be/{video_id}) has multiple manifest on [{channel_name}](https://www.youtube.com/channel/{channel_id})!"
 
 PUSHALERT_TITLE = "🔴 Hololive Live Alert"
