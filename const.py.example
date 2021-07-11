@@ -28,7 +28,7 @@ ENABLED_MODULES = {
     "telegram": False
 }
 
-#If you dont know how to create a Discord webhook read here: https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks
+# If you dont know how to create a Discord webhook read here: https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks
 DISCORD_WEBHOOK_URL = None
 DISCORD_SEND_FILES = False
 
