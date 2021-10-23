@@ -40,6 +40,7 @@ class PlayabilityStatus(Enum):
     ON_LIVE = auto()
     UNKNOWN = auto()
     LOGIN_REQUIRED = auto()
+    UNLISTED = auto()
 
 
 class RepeatedTimer(object):
@@ -235,6 +236,8 @@ def get_video_status(video_id):
             elif '"status":"ERROR"' in html:
                 return PlayabilityStatus.REMOVED
             elif '"status":"OK"' in html:
+                if '"isUnlisted":true' in html:
+                    return PlayabilityStatus.UNLISTED
                 if 'hlsManifestUrl' in html:
                     return PlayabilityStatus.ON_LIVE
                 return PlayabilityStatus.OK
