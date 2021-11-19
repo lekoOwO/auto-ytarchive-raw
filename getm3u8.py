@@ -14,4 +14,9 @@ def get_m3u8_id(m3u8_url):
     regex = r"/id/(.+?)/"
     result = re.search(regex, m3u8_url).group(1)
 
+    # sometimes youtube sends the ids in the format
+    # `<video id>.<number>~<random numbers>` so just
+    # ignore the random part and keep the relevant ones
+    result = result.split("~")[0]
+
     return result
