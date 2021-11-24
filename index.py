@@ -68,7 +68,12 @@ def save():
 
 if os.path.isfile(const.FETCHED_JSON):
     with open(const.FETCHED_JSON, encoding="utf8") as f:
-        fetched = json.load(f)
+        try:
+            fetched = json.load(f)
+        except ValueError as j:
+            print(j)
+            fetched = {}
+            save()
 else:
     fetched = {}
     save()
