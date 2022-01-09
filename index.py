@@ -2,6 +2,7 @@ import json
 import time
 import os
 import threading
+import urllib
 
 import utils
 import getm3u8
@@ -188,7 +189,11 @@ try:
                             
                         utils.log(f" {message}")
 
-            is_live = utils.is_live(channel_id)
+            try:
+                is_live = utils.is_live(channel_id)
+            except urllib.error.HTTPError as e:
+                utils.warn(f" got HTTPError when checking live status for channel \"{channel_id}\". {e}")
+                is_live = False
             if is_live:
                 utils.log(f"[{channel_name}] On live!")
 
