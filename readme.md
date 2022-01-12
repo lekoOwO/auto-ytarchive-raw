@@ -16,6 +16,7 @@ docker run \
   -v /path/to/const.py:/app/const.py `#(OPTIONAL) mounts the const.py. For usage, reference below` \
   -v /path/to/text.py:/app/text.py `#(OPTIONAL) mounts the text.py. For usage, reference below` \
   --restart=unless-stopped `# Restarts the container when it crashes` \
+  ghcr.io/lekoOwO/auto-ytarchive-raw:master
 ```
 
 [Channel configuration file example](channels.example.yml)
