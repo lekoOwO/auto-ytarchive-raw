@@ -7,7 +7,12 @@
 This usage guide is for the [Docker](https://www.docker.com/) image.
 If you do not have or haven't heard of Docker, please see the [Docker](https://www.docker.com/) website.
 
-For basic usage, simply run the following command:
+#### Docker-compose
+
+Modify the `docker-compose.yml` file to your liking, then run `docker-compose up` to start the container.
+
+#### Docker run
+For basic usage, simply modify and run the following command:
 ```bash
 docker run \
   -d `#runs the container in the background` \
@@ -18,6 +23,9 @@ docker run \
   --restart=unless-stopped `# Restarts the container when it crashes` \
   ghcr.io/lekoOwO/auto-ytarchive-raw:master
 ```
+#### Config files
+
+When an optional is left out, the example below will be used.
 
 [Channel configuration file example](channels.example.yml)
 
