@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  archiver:
+    image: ghcr.io/marnixah/auto-ytarchive-raw:master
+    restart: unless-stopped
+    tty: true # This is so that logs are captured properly
+    volumes:
+      - ./jsons/:/app/jsons/ # A folder that will hold the output JSONS files
+      - ./channels.json:/app/channels.json # Mounts the channels.json file. For usage, see readme
+      - ./const.py:/app/const.py #(OPTIONAL) Mounts the const.py file. For usage, see readme
+      - ./text.py:/app/text.py #(OPTIONAL) Mounts the text.py file. For usage, see readme
